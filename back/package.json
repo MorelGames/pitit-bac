@@ -1,0 +1,22 @@
+{
+  "name": "ptitbac-back",
+  "version": "1.0.0",
+  "description": "In-browser real-time “Petit Bac” game websocket backend",
+  "main": "index.js",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "uuid": "^7.0.2",
+    "websocket": "^1.0.31",
+    "ptitbac-commons": "file:../commons"
+  },
+  "devDependencies": {},
+  "esm": {
+    "mode": "all"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "back": "node index.js"
+  },
+  "author": "Amaury Carrade",
+  "license": "CECILL-B"
+}
