@@ -13,6 +13,7 @@ let server = http.createServer(function(request, response) {
     response.writeHead(404)
     response.end()
 });
+
 server.listen(SERVER_PORT, function() {
     log_info('Server is listening on port ' + SERVER_PORT + '.');
     let game_server = new GameServer(server);

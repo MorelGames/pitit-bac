@@ -150,6 +150,10 @@ export default class GameClient {
         this.store.dispatch("set_game_slug", message.slug);
         break;
 
+      case "set-master":
+        this.store.dispatch("update_master", message.master.uuid);
+        break;
+
       case "player-join": {
         let player = message.player;
         player.ourself = this.client_uuid === player.uuid;

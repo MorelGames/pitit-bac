@@ -197,10 +197,8 @@ export class Game {
   }
 
   left(uuid) {
-    console.log("Game left", uuid);
     let player = this.players[uuid];
     if (!player) return;
-    console.log("Has player", player);
 
     if (this.state === "CONFIG") {
       delete this.players[uuid];
@@ -225,6 +223,10 @@ export class Game {
 
     if (this.online_players().length === 0) {
       this.start_deletion_process();
+    }
+
+    if (this.master_player_uuid === uuid) {
+      this.elect_random_master();
     }
   }
 
@@ -302,6 +304,17 @@ export class Game {
     };
 
     this.broadcast("config-updated", {configuration: this.configuration});
+  }
+
+  elect_random_master() {
+    let online_uuids = this.online_players_uuids();
+    this.master_player_uuid = online_uuids[Math.floor(Math.random() * online_uuids.length)];
+    this.players[this.master_player_uuid].master = true;
+    this.broadcast("set-master", {
+      master: {
+        uuid: this.master_player_uuid
+      }
+    });
   }
 
   start(connection, uuid) {

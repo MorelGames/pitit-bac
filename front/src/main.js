@@ -123,6 +123,17 @@ const store = new Vuex.Store({
       state.master = is_master;
     },
 
+    set_master_player(state, master_uuid) {
+      Object.keys(state.players).forEach(uuid => {
+        if (uuid === master_uuid) {
+          state.players[uuid].master = true;
+        }
+        else {
+          state.players[uuid].master = false;
+        }
+      });
+    },
+
     add_player(state, player) {
       Vue.set(state.players, player.uuid, player);
     },
@@ -296,6 +307,11 @@ const store = new Vuex.Store({
         queue: false,
         actionText: null
       });
+    },
+
+    update_master(context, master_uuid) {
+      context.commit("set_master_player", master_uuid);
+      context.commit("set_master", context.state.uuid === master_uuid);
     },
 
     update_game_configuration(context, configuration) {

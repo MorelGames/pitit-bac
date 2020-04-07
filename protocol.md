@@ -161,7 +161,7 @@ Indicates that a player joined the game. Also used when a player joins the game 
 ```json
 {
     "player": {
-        "uuid":"8b42a578-5948-4237-8db0-cae73ff16699",
+        "uuid": "8b42a578-5948-4237-8db0-cae73ff16699",
         "pseudonym": "The Pseudonym",
         "ready": true,
         "master": false
@@ -175,9 +175,21 @@ Indicates that a player left the game.
 
 ```json
 {
-    "player":{
-        "uuid":"8b42a578-5948-4237-8db0-cae73ff16699"
+    "player": {
+        "uuid": "8b42a578-5948-4237-8db0-cae73ff16699"
     }
+}
+```
+
+## `set-master`
+
+Indicates that the master player has changed.
+
+```json
+{
+  "master": {
+    "uuid":"8b42a578-5948-4237-8db0-cae73ff16699"
+  }
 }
 ```
 
@@ -367,7 +379,7 @@ Indicates that the game is restarted. The client will go back to the configurati
 
 # TODO
 
-- Faire la passassion de pouvoir si le master se déconnecte
 - Scroll-top quand on change d'écran
 - Ajouter un délai avant le début d'une manche
 - Indiquer le temps quand le tour est interrompu par le plus rapide
+- Ajouter un lien de recherche rapide pour vérifier un mot
