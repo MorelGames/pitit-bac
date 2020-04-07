@@ -7,9 +7,16 @@
       <span class="panel-icon">
         <b-icon
           pack="fas"
+          icon="user-alt-slash"
+          size="is-small"
+          v-if="!player.online"
+          key="ready"
+        ></b-icon>
+        <b-icon
+          pack="fas"
           icon="check"
           size="is-small"
-          v-if="player.ready"
+          v-else-if="player.ready"
           key="ready"
         ></b-icon>
         <b-icon
@@ -20,7 +27,13 @@
           key="not-ready"
         ></b-icon>
       </span>
-      <span v-bind:class="{ 'is-master': player.master }">{{ player.pseudonym }}</span>
+      <span
+        v-bind:class="{
+          'is-master': player.master,
+          'is-offline': !player.online
+        }"
+        >{{ player.pseudonym }}</span
+      >
       <span class="is-size-7 ourself-mark" v-if="player.ourself">(vous)</span>
     </a>
   </nav>
@@ -35,7 +48,7 @@ export default {
       players: state => state.players
     }),
     sorted_players() {
-      return this.$store.getters.players_list_sorted
+      return this.$store.getters.players_list_sorted;
     },
     players_count() {
       return this.$store.getters.players_count;
@@ -59,4 +72,6 @@ export default {
 
     .is-master
       font-weight: bold
+    .is-offline
+      font-style: italic
 </style>

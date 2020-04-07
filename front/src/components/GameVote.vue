@@ -5,7 +5,8 @@
         <div class="column is-9">
           <p class="content">
             Voici les propositions de tout le monde pour la lettre
-            <strong>{{ letter }}</strong>.<br />
+            <strong>{{ letter }}</strong
+            >.<br />
             Sont-elles acceptables&nbsp;? À vous de juger&nbsp;!
             <strong>Décochez</strong> toutes les cases des propositions que vous
             jugez comme étant à rejeter. Quand vous avez terminé, validez avec
@@ -14,7 +15,12 @@
         </div>
         <div class="column is-3">
           <div class="field">
-            <b-button type="is-primary is-medium" expanded :disabled="ready" @click.once="vote_ready">
+            <b-button
+              type="is-primary is-medium"
+              expanded
+              :disabled="ready"
+              @click.once="vote_ready"
+            >
               <span v-if="ready">Attendez les autres…</span>
               <span v-else>J'ai terminé !</span>
             </b-button>
@@ -23,26 +29,63 @@
       </div>
     </b-notification>
 
-    <b-notification type="is-primary" :active="true" :closable="false" v-if="interrupted && interrupted_by">
-      Le tour a été interrompu par <strong>{{ interrupted_by }}</strong>, qui a été plus rapide que les autres !
+    <b-notification
+      type="is-primary"
+      :active="true"
+      :closable="false"
+      v-if="interrupted && interrupted_by"
+    >
+      Le tour a été interrompu par <strong>{{ interrupted_by }}</strong
+      >, qui a été plus rapide que les autres !
     </b-notification>
 
     <div class="all-answers">
-      <article class="box category-answers" v-for="(category, i) in categories" :key="i">
+      <article
+        class="box category-answers"
+        v-for="(category, i) in categories"
+        :key="i"
+      >
         <h3 class="title is-4">{{ category }}</h3>
 
-        <div class="level" v-for="(answer, j) in answers_in_category(category)" :key="j">
+        <div
+          class="level"
+          v-for="(answer, j) in answers_in_category(category)"
+          :key="j"
+        >
           <div class="level-left">
-            <div class="media answer" :class="{'is-invalid': !answer_accepted(category, answer.uuid) || (!answer.answer.valid && answer.answer.text), 'is-empty': !answer.answer.text}">
+            <div
+              class="media answer"
+              :class="{
+                'is-invalid':
+                  !answer_accepted(category, answer.uuid) ||
+                  (!answer.answer.valid && answer.answer.text),
+                'is-empty': !answer.answer.text
+              }"
+            >
               <div class="media-left answer-checkbox">
-                <b-checkbox size="is-medium" :value="own_vote(category, answer.uuid)" :disabled="!answer.answer.valid" @input="toggle_vote(category, answer.uuid)"></b-checkbox>
+                <b-checkbox
+                  size="is-medium"
+                  :value="own_vote(category, answer.uuid)"
+                  :disabled="!answer.answer.valid"
+                  @input="toggle_vote(category, answer.uuid)"
+                ></b-checkbox>
               </div>
               <div class="media-content">
-                <p class="answer-text">{{ answer.answer.text ? answer.answer.text : "(pas de réponse)" }}</p>
+                <p class="answer-text">
+                  {{
+                    answer.answer.text ? answer.answer.text : "(pas de réponse)"
+                  }}
+                </p>
                 <p class="answer-author">
                   {{ answer.author.pseudonym }}
-                  <span v-if="!answer.answer.valid"> &bull; Proposition invalide</span>
-                  <span v-else-if="!answer_accepted(category, answer.author.uuid)"> &bull; Refusé par la majorité</span>
+                  <span v-if="!answer.answer.valid">
+                    &bull; Proposition invalide</span
+                  >
+                  <span
+                    v-else-if="!answer_accepted(category, answer.author.uuid)"
+                  >
+                    &bull; Refusé par la majorité</span
+                  >
                 </p>
               </div>
             </div>
@@ -57,7 +100,6 @@
             </div>
           </div>
         </div>
-
       </article>
     </div>
   </section>
@@ -71,7 +113,7 @@ export default {
   data() {
     return {
       ready: false
-    }
+    };
   },
   computed: {
     ...mapState({
@@ -81,8 +123,9 @@ export default {
       own_uuid: state => state.uuid,
       interrupted: state => state.game.configuration.stopOnFirstCompletion,
       interrupted_by: state => {
-        let interrupter = state.players[state.game.current_round.interrupted_by];
-        return interrupter ? interrupter.pseudonym : null
+        let interrupter =
+          state.players[state.game.current_round.interrupted_by];
+        return interrupter ? interrupter.pseudonym : null;
       }
     }),
     categories() {
@@ -100,14 +143,14 @@ export default {
           votes.push({
             voter: this.players[voter_uuid],
             vote: this.votes[category][uuid].votes[voter_uuid]
-          })
+          });
         });
 
         answers.push({
           uuid: uuid,
           answer: {
             text: this.votes[category][uuid].answer,
-            valid: this.votes[category][uuid].valid,
+            valid: this.votes[category][uuid].valid
           },
           votes: votes,
           author: this.players[uuid]
@@ -143,44 +186,44 @@ export default {
       this.ready = true;
     }
   }
-}
+};
 </script>
 
 <style lang="sass">
-  @import "~bulma/sass/utilities/_all"
+@import "~bulma/sass/utilities/_all"
 
-  .votes-header
-    position: sticky
-    top: 10px
+.votes-header
+  position: sticky
+  top: 10px
 
-    z-index: 200
+  z-index: 200
 
-    .votes-header-column
-      align-items: center
-
-  .all-answers
-    display: flex
-    flex-direction: column
+  .votes-header-column
     align-items: center
 
+.all-answers
+  display: flex
+  flex-direction: column
+  align-items: center
 
-    article.category-answers
-      width: 99%
-      text-align: left
 
-      .answer
-        .answer-checkbox
-          padding-top: .2em
-        .answer-text
-          font-size: 1.2em
-        .answer-author
-          font-size: .9em
-          padding-left: .1em
+  article.category-answers
+    width: 99%
+    text-align: left
 
-        &.is-invalid .answer-text
-          color: $grey
-          text-decoration: line-through
-        &.is-empty .answer-text
-          color: $grey-light
-          font-style: italic
+    .answer
+      .answer-checkbox
+        padding-top: .2em
+      .answer-text
+        font-size: 1.2em
+      .answer-author
+        font-size: .9em
+        padding-left: .1em
+
+      &.is-invalid .answer-text
+        color: $grey
+        text-decoration: line-through
+      &.is-empty .answer-text
+        color: $grey-light
+        font-style: italic
 </style>

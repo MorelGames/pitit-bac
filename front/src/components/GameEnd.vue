@@ -7,17 +7,27 @@
             <b-icon icon="award"></b-icon>
             <p class="winner-names">{{ firsts }}</p>
             <p class="rank">
-              <span v-if="firsts_count === 1">Vainqueur ⋅ {{ firsts_points }}</span>
-              <span v-else>Vainqueurs ⋅ {{ firsts_points}}</span>
+              <span v-if="firsts_count === 1"
+                >Vainqueur ⋅ {{ firsts_points }}</span
+              >
+              <span v-else>Vainqueurs ⋅ {{ firsts_points }}</span>
             </p>
           </div>
-          <div class="subtitle second-and-third-winners" v-if="seconds_count > 0 || thirds_count > 0">
+          <div
+            class="subtitle second-and-third-winners"
+            v-if="seconds_count > 0 || thirds_count > 0"
+          >
             <div class="columns">
-              <div class="column is-4 winer second-winner" :class="{'is-offset-4': thirds_count === 0}">
+              <div
+                class="column is-4 winer second-winner"
+                :class="{ 'is-offset-4': thirds_count === 0 }"
+              >
                 <article class="winner second-winner" v-if="seconds_count > 0">
                   <p class="winner-names">{{ seconds }}</p>
                   <p class="rank">
-                    <span v-if="seconds_count < 2">Deuxième ⋅ {{ seconds_points }}</span>
+                    <span v-if="seconds_count < 2"
+                      >Deuxième ⋅ {{ seconds_points }}</span
+                    >
                     <span v-else>Deuxièmes ⋅ {{ seconds_points }}</span>
                   </p>
                 </article>
@@ -26,7 +36,9 @@
                 <article class="winner third-winner" v-if="thirds_count > 0">
                   <p class="winner-names">{{ thirds }}</p>
                   <p class="rank">
-                    <span v-if="thirds_count < 2">Troisième ⋅ {{ thirds_points }}</span>
+                    <span v-if="thirds_count < 2"
+                      >Troisième ⋅ {{ thirds_points }}</span
+                    >
                     <span v-else>Troisièmes ⋅ {{ thirds_points }}</span>
                   </p>
                 </article>
@@ -37,17 +49,27 @@
       </div>
     </section>
 
-    <b-notification :active="master" :closable="false" class="restart-game-banner">
+    <b-notification
+      :active="master"
+      :closable="false"
+      class="restart-game-banner"
+    >
       <div class="columns restart-game-columns">
         <div class="column is-9">
           <p class="content">
             <strong>Vous voulez recommencer ?</strong><br />
-            Cliquez sur le bouton ci-contre pour retourner avec tous les joueurs à l'écran de configuration, et relancer la partie.
+            Cliquez sur le bouton ci-contre pour retourner avec tous les joueurs
+            à l'écran de configuration, et relancer la partie.
           </p>
         </div>
         <div class="column is-3">
           <div class="field">
-            <b-button type="is-primary is-medium" expanded :disabled="false" @click.once="restart_game">
+            <b-button
+              type="is-primary is-medium"
+              expanded
+              :disabled="false"
+              @click.once="restart_game"
+            >
               Nouvelle partie
             </b-button>
           </div>
@@ -60,15 +82,17 @@
         <div class="level-left">
           <div class="columns is-rank-and-pseudonym">
             <div class="column is-3 is-rank">
-              {{ score.rank }}<sup>{{ score.rank === 1 ? 'er' : 'ème' }}</sup>
+              {{ score.rank }}<sup>{{ score.rank === 1 ? "er" : "ème" }}</sup>
             </div>
             <div class="column is-9 is-pseudonym">
-              {{ (players[score.uuid] || {pseudonym: "Pifra"}).pseudonym }}
+              {{ (players[score.uuid] || { pseudonym: "Pifra" }).pseudonym }}
             </div>
           </div>
         </div>
         <div class="level-right">
-          <p class="is-score"><span>{{ score.score }}</span> point{{ score.score > 1 ? 's' : '' }}</p>
+          <p class="is-score">
+            <span>{{ score.score }}</span> point{{ score.score > 1 ? "s" : "" }}
+          </p>
         </div>
       </div>
     </article>
@@ -117,17 +141,22 @@ export default {
     array_to_string(array) {
       if (array.length === 0) {
         return "N/A";
-      }
-      else if (array.length === 1) {
+      } else if (array.length === 1) {
         return array[0].trim();
-      }
-      else {
+      } else {
         let last = array.pop();
         return (array.join(", ") + " et " + last).trim();
       }
     },
     nth_winners(n) {
-      return this.array_to_string(this.scores.filter(score => score.rank === n).map(score => (this.players[score.uuid] || {pseudonym: "Pifra"}).pseudonym));
+      return this.array_to_string(
+        this.scores
+          .filter(score => score.rank === n)
+          .map(
+            score =>
+              (this.players[score.uuid] || { pseudonym: "Pifra" }).pseudonym
+          )
+      );
     },
     nth_winners_count(n) {
       return this.scores.filter(score => score.rank === n).length;
@@ -138,14 +167,13 @@ export default {
       if (nth_scores && nth_scores.length > 0) {
         let points = nth_scores[0].score;
         return points + " point" + (points > 1 ? "s" : "");
-      }
-      else return "";
+      } else return "";
     },
     restart_game() {
       this.$store.dispatch("ask_restart_game");
     }
   }
-}
+};
 </script>
 
 <style lang="sass">

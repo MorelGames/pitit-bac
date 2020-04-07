@@ -4,21 +4,33 @@ import { v4 as uuidv4 } from "uuid";
 import { server as WebSocketServer } from "websocket";
 
 import { Game } from "./game";
-import { log_info, log_err } from "./logging";
+import { log_info, log_err, log_debug } from "./logging";
 
 export default class GameServer {
     constructor(http_server) {
         this.http_server = http_server;
 
+        this.runtime_server_identifier = crypto.randomBytes(16).toString("hex");
+
         this.running_games = {};
         this.clients = {};
         this.clients_secrets = {};
         this.uuid_to_game = {};
+
+        this.clients_logged_out_at = {};
+        this.client_forget_threshold = 1000 * 60 * 60 * 2;
     }
 
     static check_origin(origin) {
         log_info("Checking origin: " + origin);
         return true;
+    }
+
+    report_statistics() {
+      let games_count = Object.keys(this.running_games).length;
+      let clients_count = Object.keys(this.clients).length;
+
+      log_info(`There are ${clients_count} clients connected in ${games_count} games.`);
     }
 
     start() {
@@ -39,9 +51,15 @@ export default class GameServer {
             var connection = request.accept('pb-protocol', request.origin);
             log_info('New peer connected from ' + connection.remoteAddress + ' successfully.');
 
+            // We send the server's runtime identifier. This allows the client to know if
+            // it need to fully reload.
+            this.send_message(connection, "set-server-runtime-identifier", {
+              runtime_identifier: this.runtime_server_identifier
+            });
+
             connection.on('message', message => {
                 if (message.type === 'utf8') {
-                    log_info('[<-] ' + message.utf8Data);
+                    log_debug('[<-] ' + message.utf8Data);
                     let json_message = JSON.parse(message.utf8Data);
 
                     let uuid = (json_message.uuid || "").toLowerCase().trim();
@@ -56,6 +74,9 @@ export default class GameServer {
                     let uuid_promise = null;
 
                     // If the user does not have an UUID, we generate one.
+                    // We also generate one if we don't know this UUID (without
+                    // this, if we stay on a tab when the server restarts, we
+                    // are unable to connect from this tab).
                     if (!uuid) {
                         uuid = uuidv4().toLowerCase();
                         let secret = crypto.randomBytes(16).toString("hex");
@@ -66,17 +87,32 @@ export default class GameServer {
                         uuid_promise = this.send_message(connection, "set-uuid", {uuid: uuid, secret: secret});
                     }
 
+                    // If the user is presenting an UUID and a secret, but we don't recognize it,
+                    // we send a “fake” runtime identifier to force the client to reload and restart
+                    // the identification process.
+                    else if (json_message.secret && !this.clients_secrets[uuid]) {
+                      this.send_message(connection, "set-server-runtime-identifier", {
+                        runtime_identifier: crypto.randomBytes(16).toString("hex")
+                      });
+
+                      return;
+                    }
+
                     // Else we check the secret.
                     else {
-                        if (this.clients_secrets[uuid] !== (json_message.secret || "").trim()) {
+                        if ((this.clients_secrets[uuid] || "") !== (json_message.secret || "").trim()) {
                             log_err(`Client with UUID ${uuid} sent a badly authenticated message. Ignored.`);
-                            log_err(`Server secret: ${this.clients_secrets[uuid]}`);
-                            log_err(`Client secret: ${json_message.secret || ""}`);
+                            log_err(`Server secret: ${this.clients_secrets[uuid] || "(empty)"}`);
+                            log_err(`Client secret: ${json_message.secret || "(empty)"}`);
                             return;
                         }
                     }
 
                     (uuid_promise || Promise.resolve()).then(() => {
+                        if (this.clients_logged_out_at[uuid]) {
+                          delete this.clients_logged_out_at[uuid];
+                        }
+
                         this.handle_message(connection, uuid, this.running_games[slug], action, json_message);
                     });
                 }
@@ -89,13 +125,35 @@ export default class GameServer {
                 let uuid = this.get_uuid_for_connection(connection);
                 let game = this.uuid_to_game[uuid];
 
-                log_info(`Peer had UUID ${uuid} in game ${game ? game.slug : "[N/A]"}.`);
-
                 if (game) {
                     game.left(uuid);
                 }
+
+                // We DON'T remove the client' secret to allow for reconnection
+                // using the same UUID/secret.
+                delete this.clients[uuid];
+                delete this.uuid_to_game[uuid];
+
+                this.clients_logged_out_at[uuid] = new Date().getTime();
+
+                this.report_statistics();
             });
         });
+
+        this.start_cleanup_task();
+    }
+
+    start_cleanup_task() {
+      setInterval(() => {
+        let now = new Date().getTime();
+
+        Object.keys(this.clients_logged_out_at).forEach(uuid => {
+          if (now - this.clients_logged_out_at[uuid] > this.client_forget_threshold) {
+            delete this.clients_secrets[uuid];
+            delete this.clients_logged_out_at[uuid];
+          }
+        });
+      }, 1000 * 60 * 20);
     }
 
     get_game_for_uuid(uuid) {
@@ -158,7 +216,7 @@ export default class GameServer {
 
             connection.sendUTF(raw_message);
 
-            log_info('[->] ' + raw_message);
+            log_debug('[->] ' + raw_message);
             resolve();
         });
     }
@@ -169,14 +227,20 @@ export default class GameServer {
 
         this.send_message(connection, "set-slug", {slug: slug}).then(() => {
             let game = new Game(slug, this);
-            this.join_game(connection, user_uuid, pseudonym, game);
-
             this.running_games[slug] = game;
+
+            this.join_game(connection, user_uuid, pseudonym, game);
         });
     }
 
     join_game(connection, user_uuid, pseudonym, game) {
         game.join(connection, user_uuid, pseudonym);
         this.uuid_to_game[user_uuid] = game;
+
+        this.report_statistics();
+    }
+
+    delete_game(slug) {
+      delete this.running_games[slug];
     }
 }

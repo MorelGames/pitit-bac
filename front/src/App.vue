@@ -1,13 +1,14 @@
 <template>
   <div id="app">
-    <b-loading
-      :is-full-page="true"
-      :active="!!loading"
-      :can-cancel="false"
-    >
-      <p>{{ loading }}</p>
+    <b-loading :is-full-page="true" :active="!!loading" :can-cancel="false">
+      <p v-html="loading_title"></p>
+      <p class="loading-subtitle" v-if="loading_subtitle" v-html="loading_subtitle"></p>
     </b-loading>
-    <div class="container" :class="{'is-loading': !!loading}" v-if="state != 'PSEUDONYM'">
+    <div
+      class="container"
+      :class="{ 'is-loading': !!loading }"
+      v-if="state != 'PSEUDONYM'"
+    >
       <div class="columns">
         <div class="column is-3">
           <Players></Players>
@@ -21,7 +22,7 @@
         </div>
       </div>
     </div>
-    <div v-else>
+    <div v-else :class="{ 'is-loading': !!loading }">
       <div class="columns">
         <div class="column is-half is-offset-3">
           <AskPseudonym></AskPseudonym>
@@ -46,10 +47,22 @@ import GameEnd from "./components/GameEnd.vue";
 
 export default {
   name: "App",
-  computed: mapState({
-    state: "game_state",
-    loading: "loading"
-  }),
+  computed: {
+    ...mapState({
+      state: "game_state",
+      loading: "loading"
+    }),
+
+    loading_title() {
+      if (!this.loading) return null;
+      return typeof this.loading === "string" ? this.loading : this.loading.title
+    },
+
+    loading_subtitle() {
+      if (!this.loading) return null;
+      return typeof this.loading === "string" ? null : this.loading.subtitle
+    }
+  },
   components: {
     AskPseudonym,
     Players,
@@ -73,10 +86,28 @@ export default {
   margin-top: 60px
 
   .loading-overlay
+    flex-direction: column
+
+    padding: 1em 20%
+
+    %mobile
+      padding: 1em
+
     p
       font-size: 2.8em
       font-weight: 200
+
+      text-align: center
+
       animation: pulse 2s infinite
+
+      strong
+        font-weight: 400
+
+      &.loading-subtitle
+        margin-top: 2em
+        font-size: 1.8em
+        animation: none
 
   .container
     &.is-loading

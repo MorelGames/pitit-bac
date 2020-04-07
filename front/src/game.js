@@ -1,8 +1,8 @@
-import { w3cwebsocket as WebSocketClient } from "websocket";
-
 export default class GameClient {
   constructor(ws_url) {
     this.ws_url = ws_url;
+
+    this.runtime_server_identifier = null;
 
     this.client = null;
     this.client_uuid = null;
@@ -13,15 +13,55 @@ export default class GameClient {
     this.store = store;
   }
 
-  connect(slug) {
+  set_uuid_and_secret(uuid, secret) {
+    this.client_uuid = uuid;
+    this.secret = secret;
+    this.store.commit("set_uuid", uuid);
+
+    this.persist_credentials();
+  }
+
+  persist_credentials() {
+    // We must use sessionStorage, else the same UUID/secret may be
+    // used between two tabs, and the server does not like this at
+    // all (the first client kinda no longer exist for the server).
+    // Also, this ensure we cannot track the player with its UUID,
+    // as the browser will delete this as soon as the tab or the
+    // browser is closed.
+    sessionStorage.setItem("pb_credentials", JSON.stringify({
+      uuid: this.client_uuid,
+      secret: this.secret
+    }));
+  }
+
+  delete_persisted_credentials() {
+    sessionStorage.removeItem("pb_credentials");
+  }
+
+  load_persisted_credentials() {
+    let credentials = sessionStorage.getItem("pb_credentials") || "";
+    try {
+      credentials = JSON.parse(credentials);
+    }
+    catch {
+      return;
+    }
+
+    if (!credentials.uuid || !credentials.secret) {
+      return;
+    }
+
+    this.set_uuid_and_secret(credentials.uuid, credentials.secret);
+  }
+
+  connect() {
+    this.load_persisted_credentials();
+
     return new Promise((resolve, reject) => {
-      this.client = new WebSocketClient(
-        this.ws_url + "/" + (slug || ""),
-        "pb-protocol"
-      );
+      this.client = new WebSocket(this.ws_url, "pb-protocol");
 
       this.client.onerror = error => {
-        console.log("WS initial connection error.", error);
+        console.error("WS initial connection error.");
         reject(error);
       };
 
@@ -31,7 +71,10 @@ export default class GameClient {
       };
 
       this.client.onclose = () => {
-        console.info("WS connection closed.");
+        console.warn("WS connection closed. Trying to reconnect…");
+        this.store.dispatch("disconnected_from_socket");
+        this.client.close();
+        setTimeout(() => this.reconnect(), 2000);
       };
 
       this.client.onmessage = message => {
@@ -69,12 +112,38 @@ export default class GameClient {
     });
   }
 
+  reconnect() {
+    this.connect().then(() => {
+      this.join_game().then(() => {
+        this.store.dispatch("reconnect_to_socket");
+
+        // We clear the players, as the server will re-send all login messages
+        // for other players.
+        this.store.commit("clear_players");
+      })
+    });
+  }
+
   handle_message(action, message) {
     switch (action) {
+      case "set-server-runtime-identifier":
+        // If we don't have an identifier stored, we store it. Else,
+        // if the identifier is different (during a reconnection), we
+        // reload the page. This is used when the game server restarts
+        // (and the client stays active), or when we re-use a tab after
+        // a long pause and the user expired server-side.
+        if (!this.runtime_server_identifier) {
+          this.runtime_server_identifier = message.runtime_identifier;
+        }
+        else if (this.runtime_server_identifier !== message.runtime_identifier) {
+          this.store.dispatch("reload_required");
+          this.delete_persisted_credentials();
+          setTimeout(() => document.location.reload(), 10000);
+        }
+        break;
+
       case "set-uuid":
-        this.client_uuid = message.uuid;
-        this.secret = message.secret;
-        this.store.commit("set_uuid", message.uuid);
+        this.set_uuid_and_secret(message.uuid, message.secret);
         break;
 
       case "set-slug":
@@ -97,12 +166,22 @@ export default class GameClient {
         this.store.commit("update_game_configuration", message.configuration);
         break;
 
+      case "catch-up-game-state":
+        this.store.dispatch("catch_up", message);
+        break;
+
       case "player-ready":
-        this.store.commit("set_player_readyness", {uuid: message.player.uuid, ready: true});
+        this.store.commit("set_player_readyness", {
+          uuid: message.player.uuid,
+          ready: true
+        });
         break;
 
       case "round-started":
-        this.store.dispatch("next_round", {round: message.round, letter: message.letter});
+        this.store.dispatch("next_round", {
+          round: message.round,
+          letter: message.letter
+        });
         break;
 
       case "round-ended":
@@ -110,15 +189,21 @@ export default class GameClient {
         break;
 
       case "vote-started":
-        this.store.dispatch("start_vote", {answers: message.answers, interrupted_by: message.interrupted});
+        this.store.dispatch("start_vote", {
+          answers: message.answers,
+          interrupted_by: message.interrupted
+        });
         break;
 
       case "vote-changed":
-        this.store.dispatch("update_vote", {voter: message.voter, vote: message.vote});
+        this.store.dispatch("update_vote", {
+          voter: message.voter,
+          vote: message.vote
+        });
         break;
 
       case "game-ended":
-        this.store.dispatch("end_game", {scores: message.scores});
+        this.store.dispatch("end_game", { scores: message.scores });
         break;
 
       case "game-restarted":
@@ -160,8 +245,8 @@ export default class GameClient {
 
   send_answers() {
     return this.send_message("send-answers", {
-      "answers": this.store.state.game.current_round.answers
-    })
+      answers: this.store.state.game.current_round.answers
+    });
   }
 
   send_vote(author_uuid, category, vote) {

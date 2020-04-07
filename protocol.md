@@ -121,6 +121,18 @@ These are included in every message, and will not be repeated afterwards.
 }
 ```
 
+## `set-server-runtime-identifier`
+
+Sets an identifier that the client must save (only in the page memory, it should not persist over reloads). When the client is disconnected, when it reconnects, it should check the identifier sent and compare it with the one stored, and force-reload if they differ—this means the game server rebooted and the current game is lost.
+
+It is also used when the player was idle in the tab out of a game for way too long, disconnected, and its server-side client reference was cleaned up.
+
+```json
+{
+  "runtime_identifier": "a string identifier"
+}
+```
+
 ## `set-uuid`
 
 Sets the client's UUID, and a secret for simple auth, to be sent in every subsequent message.
@@ -187,6 +199,55 @@ Indicates that the game's config has changed.
 }
 ```
 
+## `catch-up-game-state`
+
+Sent when someone joins the game after its beginning. This message allows the client to sync up with the game.
+
+```json
+{
+  "state": "ROUND_ANSWERS",
+  "round": {
+    "round": 1,
+    "letter": "E",
+    "time_left": 28,
+    "players_ready": [
+      "a-player-uuid",
+      "a-player-uuid"
+    ]
+  },
+  "vote": {
+    "answers": {
+      "the same structure": "as in `vote-started`"
+    },
+    "interrupted": "a-player-uuid-or-null",
+    "players_ready": [
+      "a-player-uuid",
+      "a-player-uuid"
+    ]
+  },
+  "end": {
+    "scores": [
+      "the same structure",
+      "as in `game-ended`"
+    ]
+  }
+}
+```
+
+The `CONFIG` state can be ignored as if someone log out during config, it is removed.
+
+The state can be:
+
+- `ROUND_ANSWERS`: the main part of a round, where players fill the answers;
+- `ROUND_VOTES`: the voting part of a round, where players vote for other answers;
+- `END`: the end screen of the game.
+
+If the internal state is `ROUND_ANSWERS_FINAL`, we send `ROUND_ANSWERS` and consider that the final answers were sent (no time to fill them anyway).
+
+In the above JSON, only the relevant part is sent alongside the `state`.
+
+`time_left` is in seconds, and will be `null` for infinite rounds.
+
 ## `round-started`
 
 Indicates that a new round starts. It will end when a `round-ended` message is received.
@@ -232,6 +293,7 @@ Indicates that the voting process starts.
         "Category 1": {
             "a-player-uuid": {
               "answer": "This player's answer",
+              "valid": true,
               "votes": {
                   "a-player-uuid": true,
                   "a-player-uuid": true,
@@ -305,10 +367,6 @@ Indicates that the game is restarted. The client will go back to the configurati
 
 # TODO
 
-- Supprimer une partie côté serveur quand elle est vide, après un délai si en `CONFIG`, immédiatement sinon
-- Gérer la connexion à n'importe quel moment
-- Vérifier que la déconnexion est bien gérée
-- Faire l'écran de fin
 - Faire la passassion de pouvoir si le master se déconnecte
 - Scroll-top quand on change d'écran
 - Ajouter un délai avant le début d'une manche

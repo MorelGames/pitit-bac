@@ -65,6 +65,9 @@ export class Game {
 
     this.letters = "ABCDEFGHIJKLMNOPQRSTUVWXY";
     this.used_letters = [];
+
+    this.pending_deletion_task = null;
+    this.pending_deletion_threshold = 1000 * 60 * 20;
   }
 
   log(message) {
@@ -76,7 +79,8 @@ export class Game {
       uuid: player.uuid,
       pseudonym: player.pseudonym,
       ready: player.ready,
-      master: player.master
+      master: player.master,
+      online: player.online
     };
   }
 
@@ -90,12 +94,20 @@ export class Game {
     return !!this.players[uuid];
   }
 
+  online_players() {
+    return Object.values(this.players).filter(player => player.online);
+  }
+
+  online_players_uuids() {
+    return this.online_players().map(player => player.uuid);
+  }
+
   is_valid_category(category) {
     return this.configuration.categories.includes(category);
   }
 
   random_letter() {
-    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXY";
+    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let letter = "";
 
     if (this.used_letters.length == letters.length) {
@@ -111,23 +123,54 @@ export class Game {
   }
 
   broadcast(action, message) {
-    Object.keys(this.players).forEach(uuid => this.server.send_message(this.players[uuid].connection, action, message));
+    this.online_players().filter(player => player.connection !== null).forEach(player => this.server.send_message(player.connection, action, message));
+  }
+
+  send_message(uuid, action, message) {
+    let player = this.players[uuid];
+    if (!player || !player.online || !player.connection) return;
+
+    this.server.send_message(player.connection, action, message);
+  }
+
+  start_deletion_process() {
+    this.pending_deletion_task = setTimeout(() => {
+      this.log(`${this.pending_deletion_threshold / 1000} seconds without players: destroying game.`);
+      this.server.delete_game(this.slug);
+    }, this.pending_deletion_threshold);
+  }
+
+  halt_deletion_process() {
+    if (this.pending_deletion_task) {
+      clearTimeout(this.pending_deletion_task);
+      this.pending_deletion_task = null;
+    }
   }
 
   join(connection, uuid, pseudonym) {
     // This player is the master (can configure the game)
     // if it created the game, i.e. if it's the first player.
-    let master_player = (Object.keys(this.players).length === 0);
+    let master_player = (this.online_players().length === 0) || this.master_player_uuid === uuid;
 
-    let player = {
-      connection: connection,
-      uuid: uuid,
-      pseudonym: pseudonym,
-      ready: true,
-      master: master_player
-    };
+    // Is this a reconnection?
+    let player = this.players[uuid];
 
-    this.players[player.uuid] = player;
+    if (player && !player.online) {
+      player.online = true;
+      player.connection = connection;
+    }
+    else {
+      player = {
+        connection: connection,
+        uuid: uuid,
+        pseudonym: pseudonym,
+        ready: true,
+        online: true,
+        master: master_player
+      };
+
+      this.players[player.uuid] = player;
+    }
 
     if (master_player) {
       this.master_player_uuid = player.uuid;
@@ -141,22 +184,37 @@ export class Game {
     });
 
     // And the current game configuration
-    this.server.send_message(connection, "config-updated", {configuration: this.configuration});
+    this.send_message(uuid, "config-updated", {configuration: this.configuration});
 
-    this.log("Player " + player.pseudonym + " (" + player.uuid + ") joined the game (total: " + Object.keys(this.players).length + ").");
+    // And the game state if we're not in CONFIG
+    if (this.state !== "CONFIG") {
+      this.catch_up(uuid);
+    }
+
+    this.log("Player " + player.pseudonym + " (" + player.uuid + ") joined the game (total: " + this.online_players().length + "/" + Object.keys(this.players).length + ").");
+
+    this.halt_deletion_process();
   }
 
   left(uuid) {
+    console.log("Game left", uuid);
     let player = this.players[uuid];
     if (!player) return;
+    console.log("Has player", player);
 
-    delete this.players[uuid];
+    if (this.state === "CONFIG") {
+      delete this.players[uuid];
+    }
+    else {
+      player.online = false;
+      player.connection = null;
+    }
 
     this.broadcast("player-left", {player: {
       uuid: player.uuid
     }});
 
-    this.log("Player " + player.pseudonym + " (" + player.uuid + ") left the game (total: " + Object.keys(this.players).length + ").");
+    this.log("Player " + player.pseudonym + " (" + player.uuid + ") left the game (still online: " + this.online_players().length + "/" + Object.keys(this.players).length + ").");
 
     if (this.state === "ROUND_ANSWERS" || this.state === "ROUND_ANSWERS_FINAL") {
       this.check_for_round_end();
@@ -164,6 +222,60 @@ export class Game {
     else if (this.state === "ROUND_VOTES") {
       this.check_for_vote_end();
     }
+
+    if (this.online_players().length === 0) {
+      this.start_deletion_process();
+    }
+  }
+
+  /**
+   * When a client connects during the game, this method will send it the
+   * current state of the game, so it can catch up.
+   */
+  catch_up(uuid) {
+    if (this.state === "CONFIG") return;
+
+    let catch_up = {
+      state: this.state === "ROUND_ANSWERS_FINAL" ? "ROUND_ANSWERS" : this.state
+    };
+
+    switch (this.state) {
+      case "ROUND_ANSWERS":
+      case "ROUND_ANSWERS_FINAL":
+        catch_up.round = {
+          round: this.current_round,
+          letter: this.current_letter,
+          time_left: this.configuration.time !== this.infinite_duration ? (this.configuration.time - Math.floor((Date.now() - this.current_started) / 1000)) : null,
+          players_ready: Object.keys(this.rounds[this.current_round].answers)
+        };
+        break;
+
+      case "ROUND_VOTES":
+        catch_up.vote = {
+          answers: this.rounds[this.current_round].votes,
+          interrupted: this.current_round_interrupted_by,
+          players_ready: this.current_round_votes_ready
+        };
+        break;
+
+      case "END":
+        catch_up.end = {
+          scores: this.final_scores
+        };
+        break;
+    }
+
+    switch (this.state) {
+      case "ROUND_ANSWERS_FINAL":
+        this.current_round_answers_final_received.push(uuid);
+        break;
+
+      case "ROUND_VOTES":
+        this.current_round_votes_ready.push(uuid);
+        break;
+    }
+
+    this.send_message(uuid, "catch-up-game-state", catch_up);
   }
 
   update_configuration(connection, uuid, configuration) {
@@ -175,7 +287,7 @@ export class Game {
     // we ignore it and send a configuration update with the current config
     // to erase client-side its changes.
     if (this.master_player_uuid !== uuid) {
-      this.server.send_message(connection, "config-updated", {configuration: this.configuration});
+      this.send_message(uuid, "config-updated", {configuration: this.configuration});
       return;
     }
 
@@ -276,7 +388,7 @@ export class Game {
 
     // Normal round answers time: we end the round if everyone answered.
     if (this.state == "ROUND_ANSWERS") {
-      if (Game.first_included_into_second(Object.keys(this.rounds[this.current_round].answers), Object.keys(this.players))) {
+      if (Game.first_included_into_second(Object.keys(this.rounds[this.current_round].answers), this.online_players_uuids())) {
         this.end_round();
       }
     }
@@ -285,7 +397,7 @@ export class Game {
     // We check for each answers if we have the whole serie; if so, we go to the
     // voting phase.
     else {
-      if (Game.first_included_into_second(this.current_round_answers_final_received, Object.keys(this.players))) {
+      if (Game.first_included_into_second(this.current_round_answers_final_received, this.online_players_uuids())) {
         this.start_vote();
       }
     }
@@ -298,6 +410,14 @@ export class Game {
     this.broadcast("round-ended", {});
 
     this.log(`Round #${this.current_round} ended. Collecting answers…`);
+
+    // If there is no one logged in when the round ends, we start the vote.
+    // If the players log in again, they'll have some kind of vote (sadly,
+    // without all answers), and if not, the game will be cleaned up at
+    // some point.
+    if (this.online_players().length === 0) {
+      this.start_vote();
+    }
   }
 
   start_vote() {
@@ -322,7 +442,7 @@ export class Game {
           votes: {}
         };
 
-        Object.keys(this.players).forEach(uuid => vote.votes[uuid] = answer.valid);
+        this.online_players_uuids().forEach(uuid => vote.votes[uuid] = answer.valid);
 
         votes[category][uuid] = vote;
       });
@@ -338,7 +458,14 @@ export class Game {
     if (this.state !== "ROUND_VOTES") return;
     if (!this.is_valid_player(uuid) || !this.is_valid_player(author_uuid) || !this.is_valid_category(category)) return;
 
-    this.rounds[this.current_round].votes[category][author_uuid].votes[uuid] = vote;
+    let author_answer = this.rounds[this.current_round].votes[category][author_uuid];
+
+    // We don't want someone messing up with newly-joined players, with a valid
+    // UUID but without vote entry. (Not possible with the standard client but
+    // prevents abuses.)
+    if (!author_answer) return;
+
+    author_answer.votes[uuid] = vote;
     this.broadcast("vote-changed", {
       voter: {
           uuid: uuid
@@ -358,7 +485,7 @@ export class Game {
   }
 
   check_for_vote_end() {
-    if (Game.first_included_into_second(this.current_round_votes_ready, Object.keys(this.players))) {
+    if (Game.first_included_into_second(this.current_round_votes_ready, this.online_players_uuids())) {
       if (this.current_round === this.configuration.turns) {
         this.end_game();
       }
@@ -456,6 +583,11 @@ export class Game {
 
     this.rounds = {};
     this.final_scores = [];
+
+    // We remove offline players. The client will do the same on its side.
+    Object.values(this.players).filter(player => !player.online).map(player => player.uuid).forEach(uuid => {
+      delete this.players[uuid];
+    });
 
     this.broadcast("game-restarted", {});
   }

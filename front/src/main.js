@@ -2,7 +2,14 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCheck, faExclamationCircle, faTimes, faHourglassHalf, faAward } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faExclamationCircle,
+  faTimes,
+  faHourglassHalf,
+  faUserAltSlash,
+  faAward
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import Buefy from "buefy";
@@ -20,7 +27,14 @@ Vue.use(Buefy, {
 
 Vue.config.productionTip = false;
 
-library.add(faCheck, faExclamationCircle, faTimes, faHourglassHalf, faAward);
+library.add(
+  faCheck,
+  faExclamationCircle,
+  faTimes,
+  faHourglassHalf,
+  faUserAltSlash,
+  faAward
+);
 
 Vue.component("vue-fontawesome", FontAwesomeIcon);
 
@@ -62,6 +76,7 @@ const store = new Vuex.Store({
       current_round: {
         round: 0,
         letter: "",
+        time_left: -1,
         ended: false,
         answers: {},
         votes: {},
@@ -74,8 +89,14 @@ const store = new Vuex.Store({
   getters: {
     players_count: state => Object.keys(state.players).length,
     players_list: state => Object.values(state.players),
-    players_list_sorted: state => Object.values(state.players).sort((a, b) => a.pseudonym.toLowerCase().localeCompare(b.pseudonym.toLowerCase())),
-    is_time_infinite: state => state.game.configuration.time == state.game.infinite_duration
+    players_list_sorted: state =>
+      Object.values(state.players).sort((a, b) =>
+        a.pseudonym.toLowerCase().localeCompare(b.pseudonym.toLowerCase())
+      ),
+    online_players_list: state =>
+      Object.values(state.players).filter(player => player.online),
+    is_time_infinite: state =>
+      state.game.configuration.time == state.game.infinite_duration
   },
   mutations: {
     set_game_state(state, new_state) {
@@ -110,6 +131,14 @@ const store = new Vuex.Store({
       Vue.delete(state.players, uuid);
     },
 
+    clear_players(state) {
+      state.players = {};
+    },
+
+    change_player_online_status(state, online_status) {
+      state.players[online_status.uuid].online = online_status.online;
+    },
+
     set_player_readyness(state, readyness) {
       state.players[readyness.uuid].ready = readyness.ready;
     },
@@ -131,6 +160,10 @@ const store = new Vuex.Store({
       state.game.current_round.answers = answers;
     },
 
+    update_time_left(state, time_left) {
+      state.game.current_round.time_left = time_left;
+    },
+
     round_ended(state) {
       state.game.current_round.ended = true;
     },
@@ -144,16 +177,33 @@ const store = new Vuex.Store({
     },
 
     set_round_vote(state, vote_update) {
-      Vue.set(state.game.current_round.votes[vote_update.vote.category][vote_update.vote.uuid].votes, vote_update.voter.uuid, vote_update.vote.vote);
+      Vue.set(
+        state.game.current_round.votes[vote_update.vote.category][
+          vote_update.vote.uuid
+        ].votes,
+        vote_update.voter.uuid,
+        vote_update.vote.vote
+      );
     },
 
     set_scores(state, scores) {
       state.game.scores = scores;
     },
 
+    /**
+     * Resets the game-specific state before restart, and
+     * removes logged-out players completly.
+     */
     reset_state_for_restart(state) {
       state.game.current_round = {};
       state.game.scores = [];
+
+      Object.values(state.players)
+        .filter(player => !player.online)
+        .map(player => player.uuid)
+        .forEach(uuid => {
+          Vue.delete(state.players, uuid);
+        });
     }
   },
   actions: {
@@ -201,34 +251,51 @@ const store = new Vuex.Store({
     },
 
     player_join(context, player) {
-      context.commit("add_player", player);
+      let state_player = context.state.players[player.uuid];
+      if (!state_player) {
+        context.commit("add_player", player);
 
-      if (player.ourself)
-      {
+        if (context.state.game_state == "ROUND_ANSWERS") {
+          context.commit("set_player_readyness", {uuid: player.uuid, ready: false});
+        }
+      } else {
+        context.commit("change_player_online_status", {
+          uuid: player.uuid,
+          online: true
+        });
+      }
+
+      if (player.ourself) {
         context.commit("set_master", player.master);
       }
 
-      if (context.state.game_state !== "CONFIG" && !player.ourself)
-      {
-          Snackbar.open({
-            message: `${player.pseudonym} a rejoint la partie`,
-            queue: false,
-            actionText: null
-          });
+      if (context.state.game_state !== "CONFIG" && !player.ourself) {
+        Snackbar.open({
+          message: `${player.pseudonym} a rejoint la partie`,
+          queue: false,
+          actionText: null
+        });
       }
     },
 
     player_left(context, uuid) {
-        let player = context.state.players[uuid];
-        if (!player) return; // nothing to do
+      let player = context.state.players[uuid];
+      if (!player) return; // nothing to do
 
+      if (context.state.game_state === "CONFIG") {
         context.commit("remove_player", uuid);
-
-        Snackbar.open({
-          message: `${player.pseudonym} a quitté la partie`,
-          queue: false,
-          actionText: null
+      } else {
+        context.commit("change_player_online_status", {
+          uuid: uuid,
+          online: false
         });
+      }
+
+      Snackbar.open({
+        message: `${player.pseudonym} a quitté la partie`,
+        queue: false,
+        actionText: null
+      });
     },
 
     update_game_configuration(context, configuration) {
@@ -240,8 +307,16 @@ const store = new Vuex.Store({
       client.ask_start_game();
     },
 
+    set_all_readyness(context, players_uuids_ready) {
+      players_uuids_ready.forEach(uuid =>
+        context.commit("set_player_readyness", { uuid: uuid, ready: true })
+      );
+    },
+
     reset_all_readyness(context) {
-      Object.keys(context.state.players).forEach(uuid => context.commit("set_player_readyness", {uuid: uuid, ready: false}));
+      Object.keys(context.state.players).forEach(uuid =>
+        context.commit("set_player_readyness", { uuid: uuid, ready: false })
+      );
     },
 
     next_round(context, round_config) {
@@ -256,7 +331,10 @@ const store = new Vuex.Store({
 
     end_round_and_send_answers(context) {
       context.commit("round_ended");
-      context.commit("set_loading", "Collecte des réponses de tous les joueurs…");
+      context.commit(
+        "set_loading",
+        "Collecte des réponses de tous les joueurs…"
+      );
 
       client.send_answers();
     },
@@ -274,7 +352,11 @@ const store = new Vuex.Store({
 
     send_vote_update(context, vote_update) {
       context.commit("set_round_vote", vote_update);
-      client.send_vote(vote_update.vote.uuid, vote_update.vote.category, vote_update.vote.vote);
+      client.send_vote(
+        vote_update.vote.uuid,
+        vote_update.vote.category,
+        vote_update.vote.vote
+      );
     },
 
     update_vote(context, vote_update) {
@@ -297,6 +379,57 @@ const store = new Vuex.Store({
     restart_game(context) {
       context.commit("reset_state_for_restart");
       context.commit("set_game_state", "CONFIG");
+    },
+
+    catch_up(context, catch_up) {
+      switch (catch_up.state) {
+        case "ROUND_ANSWERS":
+          context.dispatch("next_round", {
+            round: catch_up.round.round,
+            letter: catch_up.round.letter
+          });
+
+          context.dispatch("set_all_readyness", catch_up.round.players_ready);
+
+          if (catch_up.round.time_left) {
+            context.commit("update_time_left", catch_up.round.time_left);
+          }
+          break;
+
+        case "ROUND_VOTES":
+          context.dispatch("start_vote", {
+            answers: catch_up.vote.answers,
+            interrupted_by: catch_up.vote.interrupted
+          });
+          context.dispatch("set_all_readyness", catch_up.vote.players_ready);
+          break;
+
+        case "END":
+          context.dispatch("end_game", {
+            scores: catch_up.end.scores
+          });
+          break;
+      }
+    },
+
+    disconnected_from_socket(context) {
+      if (!context.state.loading) {
+        context.commit("set_loading", {
+          title: "Reconnexion en cours…",
+          subtitle: "La connexion a été perdue, mais nous essayons de corriger le problème.<br /> <strong>Si ça ne fonctionne pas au bout d'une dizaine de secondes, essayez d'actualiser la page</strong> — vous ne perdrez pas votre progression dans la partie."
+        });
+      }
+    },
+
+    reconnect_to_socket(context) {
+      context.commit("set_loading", false);
+    },
+
+    reload_required(context) {
+      context.commit("set_loading", {
+        title: "Connexion à la partie perdue.",
+        subtitle: "<strong>Veuillez actualiser la page pour continuer.</strong><br />Le serveur de jeu a été redémarré, ou bien vous êtes resté inactif⋅ve (beaucoup) trop longtemps. Sans action de votre part, la page s'actualisera automatiquement sous dix secondes."
+      })
     }
   }
 });
@@ -308,10 +441,10 @@ store.dispatch("set_game_slug", document.location.hash.substring(1));
 // Updates the slug if the hash is changed, before the connection to the server.
 window.onhashchange = function() {
   let hash = document.location.hash.substring(1);
-  if (store.state.game.slug != hash && store.state.game_state == "PSEUDONYM") {
+  if (store.state.game.slug !== hash && store.state.game_state == "PSEUDONYM") {
     store.dispatch("set_game_slug", hash);
   }
-}
+};
 
 new Vue({
   render: h => h(App),

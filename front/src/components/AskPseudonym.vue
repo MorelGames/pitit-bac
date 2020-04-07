@@ -10,7 +10,7 @@
         size="is-large is-expanded"
         maxlength="32"
         v-model.trim="pseudonym"
-        @keyup.native.enter.once="start"
+        @keyup.native.enter="start"
         autofocus
       ></b-input>
       <p class="control">
