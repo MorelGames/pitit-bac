@@ -63,6 +63,13 @@ export default {
       return typeof this.loading === "string" ? null : this.loading.subtitle
     }
   },
+
+  watch: {
+    state() {
+      this.$nextTick(() => window.scrollTo(0, 0));
+    }
+  },
+
   components: {
     AskPseudonym,
     Players,

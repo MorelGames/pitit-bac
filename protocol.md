@@ -379,7 +379,6 @@ Indicates that the game is restarted. The client will go back to the configurati
 
 # TODO
 
-- Scroll-top quand on change d'écran
 - Ajouter un délai avant le début d'une manche
 - Indiquer le temps quand le tour est interrompu par le plus rapide
 - Ajouter un lien de recherche rapide pour vérifier un mot
