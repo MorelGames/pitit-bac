@@ -183,15 +183,20 @@ export default {
   mounted() {
     // We check if we have answers stored into the session for this game/round.
     try {
-      let stored_answers = JSON.parse(sessionStorage.getItem("pb_round_answers") || "");
+      let stored_answers = JSON.parse(
+        sessionStorage.getItem("pb_round_answers") || ""
+      );
 
       // If the data is fresh and match the current game/round (TODO match with categories or round starting time?)
-      if (stored_answers.game === this.slug && stored_answers.letter === this.letter && (new Date().getTime() - stored_answers.time) / 1000 < 600) {
+      if (
+        stored_answers.game === this.slug &&
+        stored_answers.letter === this.letter &&
+        (new Date().getTime() - stored_answers.time) / 1000 < 600
+      ) {
         this.answers = stored_answers.answers;
         this.$store.commit("update_round_answers", this.answers);
       }
-    }
-    catch {} // eslint-disable-line no-empty
+    } catch {} // eslint-disable-line no-empty
 
     if (!this.is_time_infinite) {
       // If the time left is not -1, it was updated by the catch up message and
@@ -219,13 +224,16 @@ export default {
 
       // We store the answers into the session storage, to be able to restore
       // them in case of a reload.
-      sessionStorage.setItem("pb_round_answers", JSON.stringify({
-        game: this.slug,
-        round: this.current_round.round,
-        letter: this.letter,
-        time: new Date().getTime(),
-        answers: this.answers
-      }));
+      sessionStorage.setItem(
+        "pb_round_answers",
+        JSON.stringify({
+          game: this.slug,
+          round: this.current_round.round,
+          letter: this.letter,
+          time: new Date().getTime(),
+          answers: this.answers
+        })
+      );
     },
     round_finished() {
       this.answers_updated();

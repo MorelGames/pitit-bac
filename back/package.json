@@ -15,7 +15,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "back": "node index.js"
+    "back": "node index.js",
+    "prod": "NODE_ENV=production node index.js"
   },
   "author": "Amaury Carrade",
   "license": "CECILL-B"

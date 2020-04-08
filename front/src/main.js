@@ -38,7 +38,9 @@ library.add(
 
 Vue.component("vue-fontawesome", FontAwesomeIcon);
 
-const client = new GameClient("ws://127.0.0.1:62868");
+const client = new GameClient(
+  process.env.VUE_APP_WS_URL.replace("{hostname}", document.location.hostname)
+);
 
 const store = new Vuex.Store({
   state: {
@@ -129,8 +131,7 @@ const store = new Vuex.Store({
       Object.keys(state.players).forEach(uuid => {
         if (uuid === master_uuid) {
           state.players[uuid].master = true;
-        }
-        else {
+        } else {
           state.players[uuid].master = false;
         }
       });
@@ -273,7 +274,10 @@ const store = new Vuex.Store({
         context.commit("add_player", player);
 
         if (context.state.game_state == "ROUND_ANSWERS") {
-          context.commit("set_player_readyness", {uuid: player.uuid, ready: false});
+          context.commit("set_player_readyness", {
+            uuid: player.uuid,
+            ready: false
+          });
         }
       } else {
         context.commit("change_player_online_status", {
@@ -345,9 +349,10 @@ const store = new Vuex.Store({
       let set_countdown = n => {
         context.commit("set_loading", {
           title: n > 0 ? n.toString() : "Début imminent…",
-          subtitle: "Préparez-vous, le prochain tour démarre dans quelques secondes…"
+          subtitle:
+            "Préparez-vous, le prochain tour démarre dans quelques secondes…"
         });
-      }
+      };
 
       set_countdown(countdown);
 
@@ -470,7 +475,8 @@ const store = new Vuex.Store({
       if (!context.state.loading) {
         context.commit("set_loading", {
           title: "Reconnexion en cours…",
-          subtitle: "La connexion a été perdue, mais nous essayons de corriger le problème.<br /> <strong>Si ça ne fonctionne pas au bout d'une dizaine de secondes, essayez d'actualiser la page</strong> — vous ne perdrez pas votre progression dans la partie."
+          subtitle:
+            "La connexion a été perdue, mais nous essayons de corriger le problème.<br /> <strong>Si ça ne fonctionne pas au bout d'une dizaine de secondes, essayez d'actualiser la page</strong> — vous ne perdrez pas votre progression dans la partie."
         });
       }
     },
@@ -482,8 +488,9 @@ const store = new Vuex.Store({
     reload_required(context) {
       context.commit("set_loading", {
         title: "Connexion à la partie perdue.",
-        subtitle: "<strong>Veuillez actualiser la page pour continuer.</strong><br />Le serveur de jeu a été redémarré, ou bien vous êtes resté inactif⋅ve (beaucoup) trop longtemps. Sans action de votre part, la page s'actualisera automatiquement sous dix secondes."
-      })
+        subtitle:
+          "<strong>Veuillez actualiser la page pour continuer.</strong><br />Le serveur de jeu a été redémarré, ou bien vous êtes resté inactif⋅ve (beaucoup) trop longtemps. Sans action de votre part, la page s'actualisera automatiquement sous dix secondes."
+      });
     }
   }
 });

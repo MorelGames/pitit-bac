@@ -79,12 +79,28 @@
                 <ul class="answer-meta">
                   <li>{{ answer.author.pseudonym }}</li>
                   <li v-if="answer.answer.valid">
-                    <b-tooltip :label="`Rechercher « ${answer.answer.text} » sur un moteur de recherche (dans un nouvel onglet)`" position="is-bottom" type="is-light" animated multilined>
-                      <a :href="search_url(category, answer.answer.text)" target="search_engine">Rechercher</a>
+                    <b-tooltip
+                      :label="
+                        `Rechercher « ${answer.answer.text} » sur un moteur de recherche (dans un nouvel onglet)`
+                      "
+                      position="is-bottom"
+                      type="is-light"
+                      animated
+                      multilined
+                    >
+                      <a
+                        :href="search_url(category, answer.answer.text)"
+                        target="search_engine"
+                        >Rechercher</a
+                      >
                     </b-tooltip>
                   </li>
                   <li v-if="!answer.answer.valid">Proposition invalide</li>
-                  <li v-else-if="!answer_accepted(category, answer.author.uuid)">Refusé par la majorité</li>
+                  <li
+                    v-else-if="!answer_accepted(category, answer.author.uuid)"
+                  >
+                    Refusé par la majorité
+                  </li>
                 </ul>
               </div>
             </div>

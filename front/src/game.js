@@ -28,10 +28,13 @@ export default class GameClient {
     // Also, this ensure we cannot track the player with its UUID,
     // as the browser will delete this as soon as the tab or the
     // browser is closed.
-    sessionStorage.setItem("pb_credentials", JSON.stringify({
-      uuid: this.client_uuid,
-      secret: this.secret
-    }));
+    sessionStorage.setItem(
+      "pb_credentials",
+      JSON.stringify({
+        uuid: this.client_uuid,
+        secret: this.secret
+      })
+    );
   }
 
   delete_persisted_credentials() {
@@ -42,8 +45,7 @@ export default class GameClient {
     let credentials = sessionStorage.getItem("pb_credentials") || "";
     try {
       credentials = JSON.parse(credentials);
-    }
-    catch {
+    } catch {
       return;
     }
 
@@ -120,7 +122,7 @@ export default class GameClient {
         // We clear the players, as the server will re-send all login messages
         // for other players.
         this.store.commit("clear_players");
-      })
+      });
     });
   }
 
@@ -134,8 +136,9 @@ export default class GameClient {
         // a long pause and the user expired server-side.
         if (!this.runtime_server_identifier) {
           this.runtime_server_identifier = message.runtime_identifier;
-        }
-        else if (this.runtime_server_identifier !== message.runtime_identifier) {
+        } else if (
+          this.runtime_server_identifier !== message.runtime_identifier
+        ) {
           this.store.dispatch("reload_required");
           this.delete_persisted_credentials();
           setTimeout(() => document.location.reload(), 10000);

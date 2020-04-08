@@ -2,7 +2,11 @@
   <div id="app">
     <b-loading :is-full-page="true" :active="!!loading" :can-cancel="false">
       <p v-html="loading_title"></p>
-      <p class="loading-subtitle" v-if="loading_subtitle" v-html="loading_subtitle"></p>
+      <p
+        class="loading-subtitle"
+        v-if="loading_subtitle"
+        v-html="loading_subtitle"
+      ></p>
     </b-loading>
     <div
       class="container"
@@ -55,12 +59,14 @@ export default {
 
     loading_title() {
       if (!this.loading) return null;
-      return typeof this.loading === "string" ? this.loading : this.loading.title
+      return typeof this.loading === "string"
+        ? this.loading
+        : this.loading.title;
     },
 
     loading_subtitle() {
       if (!this.loading) return null;
-      return typeof this.loading === "string" ? null : this.loading.subtitle
+      return typeof this.loading === "string" ? null : this.loading.subtitle;
     }
   },
 
