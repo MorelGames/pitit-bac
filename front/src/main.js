@@ -80,11 +80,13 @@ const store = new Vuex.Store({
         ended: false,
         answers: {},
         votes: {},
-        interrupted_by: null
+        interrupted_by: null,
+        countdown_task: null
       },
 
       scores: []
-    }
+    },
+    search_engine: "https://qwant.com/?q={s}&t=web"
   },
   getters: {
     players_count: state => Object.keys(state.players).length,
@@ -156,6 +158,10 @@ const store = new Vuex.Store({
 
     update_game_configuration(state, config) {
       state.game.configuration = config;
+    },
+
+    set_countdown_task(state, task) {
+      state.game.current_round.countdown_task = task;
     },
 
     next_round(state, round_config) {
@@ -335,7 +341,35 @@ const store = new Vuex.Store({
       );
     },
 
+    next_round_soon(context, countdown) {
+      let set_countdown = n => {
+        context.commit("set_loading", {
+          title: n > 0 ? n.toString() : "Début imminent…",
+          subtitle: "Préparez-vous, le prochain tour démarre dans quelques secondes…"
+        });
+      }
+
+      set_countdown(countdown);
+
+      let task = setInterval(() => {
+        set_countdown(--countdown);
+
+        if (countdown <= 0) {
+          clearTimeout(task);
+          context.commit("set_countdown_task", null);
+        }
+      }, 1000);
+
+      context.commit("set_countdown_task", task);
+    },
+
     next_round(context, round_config) {
+      if (context.state.game.current_round.countdown_task) {
+        clearTimeout(context.state.game.current_round.countdown_task);
+        context.commit("set_countdown_task", null);
+      }
+
+      context.commit("set_loading", false);
       context.commit("next_round", round_config);
       context.commit("set_game_state", "ROUND_ANSWERS");
       context.dispatch("reset_all_readyness");
@@ -399,6 +433,10 @@ const store = new Vuex.Store({
 
     catch_up(context, catch_up) {
       switch (catch_up.state) {
+        case "ROUND_ANSWERS_COUNTDOWN":
+          context.dispatch("next_round_soon", catch_up.countdown);
+          break;
+
         case "ROUND_ANSWERS":
           context.dispatch("next_round", {
             round: catch_up.round.round,

@@ -76,17 +76,16 @@
                     answer.answer.text ? answer.answer.text : "(pas de réponse)"
                   }}
                 </p>
-                <p class="answer-author">
-                  {{ answer.author.pseudonym }}
-                  <span v-if="!answer.answer.valid">
-                    &bull; Proposition invalide</span
-                  >
-                  <span
-                    v-else-if="!answer_accepted(category, answer.author.uuid)"
-                  >
-                    &bull; Refusé par la majorité</span
-                  >
-                </p>
+                <ul class="answer-meta">
+                  <li>{{ answer.author.pseudonym }}</li>
+                  <li v-if="answer.answer.valid">
+                    <b-tooltip :label="`Rechercher « ${answer.answer.text} » sur un moteur de recherche (dans un nouvel onglet)`" position="is-bottom" type="is-light" animated multilined>
+                      <a :href="search_url(category, answer.answer.text)" target="search_engine">Rechercher</a>
+                    </b-tooltip>
+                  </li>
+                  <li v-if="!answer.answer.valid">Proposition invalide</li>
+                  <li v-else-if="!answer_accepted(category, answer.author.uuid)">Refusé par la majorité</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -126,7 +125,8 @@ export default {
         let interrupter =
           state.players[state.game.current_round.interrupted_by];
         return interrupter ? interrupter.pseudonym : null;
-      }
+      },
+      search_engine: state => state.search_engine
     }),
     categories() {
       return Object.keys(this.votes);
@@ -184,6 +184,10 @@ export default {
     vote_ready() {
       this.$store.dispatch("vote_ready");
       this.ready = true;
+    },
+
+    search_url(category, text) {
+      return this.search_engine.replace("{s}", category + " " + text);
     }
   }
 };
@@ -216,9 +220,24 @@ export default {
         padding-top: .2em
       .answer-text
         font-size: 1.2em
-      .answer-author
+
+      ul.answer-meta
         font-size: .9em
         padding-left: .1em
+
+        li
+          display: inline-block
+
+          &:not(:first-child)
+            margin-left: .8em
+
+            &:before
+              content: "•"
+              position: relative
+              left: -.4em
+
+          a
+            color: $text
 
       &.is-invalid .answer-text
         color: $grey

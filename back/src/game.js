@@ -21,6 +21,9 @@ export class Game {
       empty: 0
     };
 
+    // The duration of the countdowns before a round.
+    this.ROUND_COUNTDOWN = 3;
+
     this.slug = slug;
     this.server = server;
 
@@ -53,6 +56,7 @@ export class Game {
 
     this.current_round = 0;
     this.current_letter = null;
+    this.current_countdown_started = null;
     this.current_started = null;
     this.current_timeout = null;
     this.current_round_interrupted_by = null;
@@ -242,6 +246,9 @@ export class Game {
     };
 
     switch (this.state) {
+      case "ROUND_ANSWERS_COUNTDOWN":
+        catch_up.countdown = Math.round((new Date().getTime() - this.current_countdown_started) / 1000);
+        break;
       case "ROUND_ANSWERS":
       case "ROUND_ANSWERS_FINAL":
         catch_up.round = {
@@ -308,13 +315,15 @@ export class Game {
 
   elect_random_master() {
     let online_uuids = this.online_players_uuids();
-    this.master_player_uuid = online_uuids[Math.floor(Math.random() * online_uuids.length)];
-    this.players[this.master_player_uuid].master = true;
-    this.broadcast("set-master", {
-      master: {
-        uuid: this.master_player_uuid
-      }
-    });
+    if (online_uuids.length > 0) {
+      this.master_player_uuid = online_uuids[Math.floor(Math.random() * online_uuids.length)];
+      this.players[this.master_player_uuid].master = true;
+      this.broadcast("set-master", {
+        master: {
+          uuid: this.master_player_uuid
+        }
+      });
+    }
   }
 
   start(connection, uuid) {
@@ -326,31 +335,39 @@ export class Game {
   }
 
   next_round() {
-    this.state = "ROUND_ANSWERS";
-    this.current_round++;
-    this.current_letter = this.random_letter();
-
-    this.current_round_answers_final_received = [];
-    this.current_round_votes_ready = [];
-
-    this.rounds[this.current_round] = {
-      letter: this.current_letter,
-      answers: {},
-      votes: {}
-    };
-
-    this.broadcast("round-started", {
-      "round": this.current_round,
-      "letter": this.current_letter
+    this.state = "ROUND_ANSWERS_COUNTDOWN";
+    this.current_countdown_started = new Date().getTime();
+    this.broadcast("round-starts-soon", {
+      countdown: this.ROUND_COUNTDOWN
     });
 
-    this.current_started = Date.now();
+    setTimeout(() => {
+      this.state = "ROUND_ANSWERS";
+      this.current_round++;
+      this.current_letter = this.random_letter();
 
-    if (this.configuration.time != this.infinite_duration) {
-      this.current_timeout = setTimeout(() => {
-        this.end_round();
-      }, this.configuration.time * 1000);
-    }
+      this.current_round_answers_final_received = [];
+      this.current_round_votes_ready = [];
+
+      this.rounds[this.current_round] = {
+        letter: this.current_letter,
+        answers: {},
+        votes: {}
+      };
+
+      this.broadcast("round-started", {
+        "round": this.current_round,
+        "letter": this.current_letter
+      });
+
+      this.current_started = Date.now();
+
+      if (this.configuration.time != this.infinite_duration) {
+        this.current_timeout = setTimeout(() => {
+          this.end_round();
+        }, this.configuration.time * 1000);
+      }
+    }, this.ROUND_COUNTDOWN * 1000);
   }
 
   receive_answers(uuid, answers) {

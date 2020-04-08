@@ -181,6 +181,10 @@ export default class GameClient {
         });
         break;
 
+      case "round-starts-soon":
+        this.store.dispatch("next_round_soon", message.countdown);
+        break;
+
       case "round-started":
         this.store.dispatch("next_round", {
           round: message.round,

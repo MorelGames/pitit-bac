@@ -218,6 +218,7 @@ Sent when someone joins the game after its beginning. This message allows the cl
 ```json
 {
   "state": "ROUND_ANSWERS",
+  "countdown": 2,
   "round": {
     "round": 1,
     "letter": "E",
@@ -248,17 +249,26 @@ Sent when someone joins the game after its beginning. This message allows the cl
 
 The `CONFIG` state can be ignored as if someone log out during config, it is removed.
 
-The state can be:
+Of this JSON message, only the `state` key and another relevant one is sent. The state can be:
 
-- `ROUND_ANSWERS`: the main part of a round, where players fill the answers;
-- `ROUND_VOTES`: the voting part of a round, where players vote for other answers;
-- `END`: the end screen of the game.
+- `ROUND_ANSWERS_COUNTDOWN`: the countdown before the beginning of a round (other key: `countdown`);
+- `ROUND_ANSWERS`: the main part of a round, where players fill the answers (other key: `round`);
+- `ROUND_VOTES`: the voting part of a round, where players vote for other answers (other key: `vote`);
+- `END`: the end screen of the game (other key: `end`).
 
 If the internal state is `ROUND_ANSWERS_FINAL`, we send `ROUND_ANSWERS` and consider that the final answers were sent (no time to fill them anyway).
 
-In the above JSON, only the relevant part is sent alongside the `state`.
-
 `time_left` is in seconds, and will be `null` for infinite rounds.
+
+## `round-starts-soon`
+
+Indicates that the round will start soon. The client shoud display a countdown with the given number of seconds.
+
+```json
+{
+  "countdown": 3
+}
+```
 
 ## `round-started`
 
@@ -374,11 +384,3 @@ Indicates that the game is restarted. The client will go back to the configurati
 ```json
 {}
 ```
-
-
-
-# TODO
-
-- Ajouter un délai avant le début d'une manche
-- Indiquer le temps quand le tour est interrompu par le plus rapide
-- Ajouter un lien de recherche rapide pour vérifier un mot

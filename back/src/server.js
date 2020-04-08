@@ -77,7 +77,9 @@ export default class GameServer {
                     // We also generate one if we don't know this UUID (without
                     // this, if we stay on a tab when the server restarts, we
                     // are unable to connect from this tab).
-                    if (!uuid) {
+                    // If the player is not in a game, we regenerate too an
+                    // uuid.
+                    if (!uuid || !this.uuid_to_game[uuid]) {
                         uuid = uuidv4().toLowerCase();
                         let secret = crypto.randomBytes(16).toString("hex");
 
@@ -132,7 +134,6 @@ export default class GameServer {
                 // We DON'T remove the client' secret to allow for reconnection
                 // using the same UUID/secret.
                 delete this.clients[uuid];
-                delete this.uuid_to_game[uuid];
 
                 this.clients_logged_out_at[uuid] = new Date().getTime();
 
@@ -241,6 +242,12 @@ export default class GameServer {
     }
 
     delete_game(slug) {
+      Object.keys(this.uuid_to_game).forEach(uuid => {
+          if (this.uuid_to_game[uuid].slug === slug) {
+            delete this.uuid_to_game[uuid];
+          }
+      });
+
       delete this.running_games[slug];
     }
 }
