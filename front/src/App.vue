@@ -15,6 +15,9 @@
     >
       <div class="columns">
         <div class="column is-3">
+          <div class="pititbac-logo">
+            <img src="./assets/logo.svg" alt="Pitit Bac" />
+          </div>
           <Players></Players>
           <ShareGame></ShareGame>
         </div>
@@ -26,7 +29,7 @@
         </div>
       </div>
     </div>
-    <div v-else :class="{ 'is-loading': !!loading }">
+    <div v-else class="container" :class="{ 'is-loading': !!loading }">
       <div class="columns">
         <div class="column is-half is-offset-3">
           <AskPseudonym></AskPseudonym>
@@ -96,6 +99,9 @@ export default {
 @import "~bulma"
 @import "~buefy/src/scss/buefy"
 
+html
+  //background-color: darken($dark, 6%)
+
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
@@ -131,6 +137,14 @@ export default {
   .container
     &.is-loading
       filter: blur(4px)
+
+  .field
+    .help
+      color: $grey-light
+
+  .pititbac-logo
+    margin-top: .2rem
+    margin-bottom: 2rem
 
 @keyframes pulse
   0%

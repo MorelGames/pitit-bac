@@ -1,9 +1,6 @@
 <template>
   <nav class="panel">
-    <p class="panel-heading">
-      {{ players_count }} joueur{{ players_count > 1 ? "s" : "" }}
-    </p>
-    <a class="panel-block" v-for="(player, i) in sorted_players" :key="i">
+    <div class="panel-block" v-for="(player, i) in sorted_players" :key="i">
       <span class="panel-icon">
         <b-icon
           pack="fas"
@@ -35,7 +32,7 @@
         >{{ player.pseudonym }}</span
       >
       <span class="is-size-7 ourself-mark" v-if="player.ourself">(vous)</span>
-    </a>
+    </div>
   </nav>
 </template>
 
@@ -59,9 +56,17 @@ export default {
 
 <style lang="sass" scoped>
 .panel
-  .panel-heading
-    text-align: center
+  border-radius: 5px
+
   .panel-block
+    &:first-child
+      border-top-left-radius: 4px
+      border-top-right-radius: 4px
+
+    &:last-child
+      border-bottom-left-radius: 4px
+      border-bottom-right-radius: 4px
+
     .panel-icon
       position: relative
       top: -2px

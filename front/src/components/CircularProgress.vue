@@ -20,7 +20,7 @@ export default {
 @import "../assets/variables"
 
 $circular-progress-color: $primary !default
-$circular-progress-background-color: lighten($circular-progress-color, 80%) !default
+$circular-progress-background-color: $less-dark !default
 $circular-progress-size: 8em !default
 $circular-progress-label-font-family: "Fira Sans" !default
 $circular-progress-label-font-weight: 200 !default
@@ -35,7 +35,7 @@ $circular-progress-thickness: .12em !default
   height: 1em
   border-radius: 50%
   border: $circular-progress-thickness solid $circular-progress-background-color
-  background-color: #FFF
+  background-color: transparent
 
   &[data-value^='5']:not([data-value='5']):not([data-value^='5.']),
   &[data-value^='6']:not([data-value='6']):not([data-value^='6.']),

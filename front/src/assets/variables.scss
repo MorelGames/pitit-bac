@@ -3,17 +3,64 @@
 $primary: #3f9718;
 $primary-invert: findColorInvert($primary);
 
+// Should be used for background under white text
+// (insufficient contrast with $primary).
+$primary-dark: #338800;
+$primary-dark-invert: findColorInvert($primary-dark);
+
+$dark: #001F00;
+$dark-invert: findColorInvert($dark);
+
+$less-dark: lighten($dark, 10%);
+$less-dark-invert: findColorInvert($less-dark);
+
 $colors: (
     "white": ($white, $black),
     "black": ($black, $white),
     "light": ($light, $light-invert),
-    "dark": ($dark, $dark-invert),
+    "dark": ($less-dark, $dark-invert),
+    "less-dark": ($less-dark, $less-dark-invert),
     "primary": ($primary, $primary-invert),
+    "primary-dark": ($primary-dark, $primary-dark-invert),
     "info": ($info, $info-invert),
     "success": ($success, $success-invert),
     "warning": ($warning, $warning-invert),
     "danger": ($danger, $danger-invert)
 );
 
+//$input-color: $white;
+//$input-background-color: lighten($dark, 2%);
+$input-border-color: $less-dark;
+$input-hover-border-color: lighten($dark, 14%);
+
+/*
+$text: $white;
+
+$label-color: $white;
+
+
 $input-focus-border-color: $primary;
 $input-focus-box-shadow-color: rgba($primary, 0.25);
+
+$panel-heading-background-color: $primary-dark;
+$panel-heading-color: $white;
+$panel-item-border: 1px solid $less-dark;
+
+$panel-block-hover-background-color: $less-dark;
+$panel-block-color: $white;
+$panel-list-item-color: $white;
+$panel-list-item-hover-color: $white;
+$panel-block-active-color: $white;
+$panel-tab-active-color: $white;
+
+$message-header-color: $white;
+$message-header-background-color: $primary-dark;
+$message-background-color: $less-dark;
+$message-body-color: $white-ter;
+
+$slider-track-background: $dark;
+$slider-thumb-border: 1px solid $dark;
+$slider-tick-background: $dark;
+
+$notification-background-color: $less-dark;
+*/

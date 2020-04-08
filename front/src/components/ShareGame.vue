@@ -28,12 +28,17 @@ export default {
 </script>
 
 <style lang="sass">
+@import "../assets/variables"
+
 .field.share-game
-    label, p.help
-        margin-bottom: 0
+  label, p.help
+    margin-bottom: 0
 
-        position: relative
-        left: 2px
+    position: relative
+    left: 2px
 
-        text-align: left
+    text-align: left
+
+  p.help
+    color: $grey-dark !important
 </style>

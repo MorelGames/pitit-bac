@@ -20,6 +20,7 @@
               @input="update_game_configuration"
               placeholder="Ajouter une catégorie…"
               :disabled="!master"
+              type="is-primary-dark"
             >
             </b-taginput>
           </b-field>
@@ -142,10 +143,24 @@ export default {
 </script>
 
 <style lang="sass">
+@import "../assets/variables"
+
 label.switch span.control-label
   position: relative
   top: 2px
 
 div.column.is-half div.field:not(:first-child):not(.no-extended-margin-top)
   margin-top: 3rem
+
+div.taginput.control .taginput-container[disabled]
+  // TODO use variable for these
+  background-color: #f8fef6
+  border-color: #f8fef6
+
+  .tag
+    .delete
+      display: none
+
+  .autocomplete.control
+    display: none
 </style>

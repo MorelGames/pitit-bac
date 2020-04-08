@@ -213,7 +213,7 @@ export default {
 @import "~bulma/sass/utilities/_all"
 
 .votes-header
-  position: sticky
+  position: sticky !important
   top: 10px
 
   z-index: 200

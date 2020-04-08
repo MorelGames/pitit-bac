@@ -1,17 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.png">
+  <title>Pitit bac !</title>
+
+  <meta name="description" content="Jouez au Petit Bac en temps réel et en ligne !" />
+
+  <link rel="icon" type="image/png" href="<%= BASE_URL %>img/favicon-16.png" sizes="16x16" />
+  <link rel="icon" type="image/png" href="<%= BASE_URL %>img/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="<%= BASE_URL %>img/favicon-96.png" sizes="96x96" />
+  <link rel="icon" type="image/png" href="<%= BASE_URL %>img/favicon-128.png" sizes="128x128" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Le Pitit Bac — Jeu du Petit Bac en ligne, multijoueur" />
+  <meta name="twitter:description" content="Des parties de Petit Bac en ligne, en temps réel et à plusieurs" />
+  <meta name="twitter:creator" content="@AmauryPi" />
+  <meta name="twitter:image:src" content="<%= VUE_APP_URL %>/img/banner.png" />
+
+  <meta property="og:title" content="Le Pitit Bac — Jeu du Petit Bac en ligne, multijoueur" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="<%= VUE_APP_URL %>" />
+  <meta property="og:site_name" content="Le Pitit Bac" />
+  <meta property="og:description" content="Des parties de Petit Bac en ligne, en temps réel et à plusieurs" />
+  <meta property="og:image" content="<%= VUE_APP_URL %>/img/banner.png" />
+</head>
+
+<body>
+  <noscript>
+    <p style="margin:2rem;text-align:center;">
+      <strong style="font-size: 1.2em;font-weight:bold;">Désolé, mais <em>Pitit Bac</em> ne peut pas fonctionner sans JavaScript.</strong><br /><br />
+      <a href="https://enable-javascript.com/fr/" target="_blank">Voici des instructions pour activer JavaScript dans votre navigateur.</a>
+    </p>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+</body>
 </html>
