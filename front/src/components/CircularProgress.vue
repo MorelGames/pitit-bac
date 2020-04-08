@@ -17,9 +17,9 @@ export default {
 </script>
 
 <style lang="sass">
-@import "~bulma/sass/utilities/_all";
+@import "../assets/variables"
 
-$circular-progress-color: rgb(57, 32, 126) !default
+$circular-progress-color: $primary !default
 $circular-progress-background-color: lighten($circular-progress-color, 80%) !default
 $circular-progress-size: 8em !default
 $circular-progress-label-font-family: "Fira Sans" !default

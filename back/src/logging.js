@@ -1,5 +1,5 @@
 export function log(out, message) {
-    out('[' + (new Date()) + '] ' + message)
+    out('[' + (new Date().toISOString()) + '] ' + message)
 }
 
 export function log_info(message) {

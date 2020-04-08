@@ -172,6 +172,7 @@ export default class GameServer {
     handle_message(connection, user_uuid, game, action, message) {
         switch (action) {
             case "join-game":
+                if (!message.pseudonym) return;
                 if (game) {
                     this.join_game(connection, user_uuid, message.pseudonym, game);
                 }

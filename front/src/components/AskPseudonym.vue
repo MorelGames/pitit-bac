@@ -38,8 +38,10 @@ export default {
   },
   methods: {
     start() {
-      localStorage.setItem("pb_pseudonym", this.pseudonym);
-      this.$store.dispatch("set_pseudonym_and_connect", this.pseudonym);
+      if (this.pseudonym) {
+        localStorage.setItem("pb_pseudonym", this.pseudonym);
+        this.$store.dispatch("set_pseudonym_and_connect", this.pseudonym);
+      }
     }
   }
 };

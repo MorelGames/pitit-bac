@@ -85,3 +85,5 @@ $ make build-front
 ```
 
 This will put all the files onto the `dist` folder. This folder should be served by nginx or another.
+
+Use `systemd` or another dæmon system to run the backend server—see the service file for systemd alongside this README. You can customize the internal port used by the WS server using the `PITIT_BAC_WS_PORT` environment variable.
