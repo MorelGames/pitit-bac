@@ -316,14 +316,33 @@ export class Game {
   elect_random_master() {
     let online_uuids = this.online_players_uuids();
     if (online_uuids.length > 0) {
-      this.master_player_uuid = online_uuids[Math.floor(Math.random() * online_uuids.length)];
-      this.players[this.master_player_uuid].master = true;
-      this.broadcast("set-master", {
-        master: {
-          uuid: this.master_player_uuid
-        }
-      });
+      this.elect_master(online_uuids[Math.floor(Math.random() * online_uuids.length)]);
     }
+  }
+
+  elect_master(new_master_uuid) {
+    let old_master = this.players[this.master_player_uuid];
+    let new_master = this.players[new_master_uuid];
+
+    if (!new_master) return;
+
+    if (old_master) {
+      old_master.master = false;
+    }
+
+    new_master.master = true;
+    this.master_player_uuid = new_master_uuid;
+
+    this.broadcast("set-master", {
+      master: {
+        uuid: this.master_player_uuid
+      }
+    });
+  }
+
+  switch_master(uuid, new_master_uuid) {
+    if (this.master_player_uuid !== uuid) return;
+    this.elect_master(new_master_uuid);
   }
 
   start(connection, uuid) {

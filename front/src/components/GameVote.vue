@@ -21,7 +21,7 @@
               :disabled="ready"
               @click.once="vote_ready"
             >
-              <span v-if="ready">Attendez les autres…</span>
+              <span v-if="ready">Patientez…</span>
               <span v-else>J'ai terminé !</span>
             </b-button>
           </div>
@@ -216,7 +216,7 @@ export default {
   position: sticky !important
   top: 10px
 
-  z-index: 200
+  z-index: 40
 
   .votes-header-column
     align-items: center

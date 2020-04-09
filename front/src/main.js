@@ -8,6 +8,7 @@ import {
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
+  faUserShield,
   faAward
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -33,6 +34,7 @@ library.add(
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
+  faUserShield,
   faAward
 );
 
@@ -227,20 +229,12 @@ const store = new Vuex.Store({
   actions: {
     set_pseudonym_and_connect(context, pseudonym) {
       context.commit("set_pseudonym", pseudonym);
-
-      let connectingSnake = Snackbar.open({
-        message: "Connexion à la partie en cours…",
-        indefinite: true,
-        actionText: null
-      });
-
       context.commit("set_loading", "Connexion à la partie…");
 
       client
         .connect()
         .then(() => {
           client.join_game().then(() => {
-            connectingSnake.close();
             context.commit("set_loading", false);
             context.commit("set_game_state", "CONFIG");
           });
@@ -249,8 +243,6 @@ const store = new Vuex.Store({
           console.error("Unable to connect to websocket server.", error);
 
           context.commit("set_loading", false);
-
-          connectingSnake.close();
 
           Snackbar.open({
             message: "Impossible de se connecter à la partie.",
@@ -322,6 +314,19 @@ const store = new Vuex.Store({
     update_master(context, master_uuid) {
       context.commit("set_master_player", master_uuid);
       context.commit("set_master", context.state.uuid === master_uuid);
+
+      if (context.state.master) {
+        Snackbar.open({
+          message: `Vous êtes désormais maître de la partie !`,
+          queue: false,
+          actionText: null
+        });
+      }
+    },
+
+    switch_master(context, new_master_uuid) {
+      if (!context.state.master) return;
+      client.switch_master(new_master_uuid);
     },
 
     update_game_configuration(context, configuration) {

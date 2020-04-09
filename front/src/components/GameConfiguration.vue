@@ -25,13 +25,14 @@
             </b-taginput>
           </b-field>
           <div class="field">
+            <b-tooltip multilined position="is-bottom" :label="start_button_tooltip">
             <b-button
               type="is-primary is-medium"
               expanded
               :disabled="!master || !can_start"
               @click="start_game"
               >Démarrer la partie</b-button
-            >
+            ></b-tooltip>
           </div>
         </div>
         <div class="column is-half">
@@ -113,10 +114,25 @@ export default {
         : this.format_seconds(this.config.time, true);
     },
     can_start() {
-      return (
-        this.$store.state.game.configuration.categories.length !== 0 &&
-        Object.values(this.$store.state.players).length > 1
-      );
+      return this.has_categories && this.has_players;
+    },
+    has_players() {
+      return Object.values(this.$store.state.players).length > 1;
+    },
+    has_categories() {
+      return this.$store.state.game.configuration.categories.length !== 0;
+    },
+    start_button_tooltip() {
+      if (this.master) {
+        if (!this.has_players)
+          return "Il n'y a que vous ! Invitez d'autres joueurs à vous rejoindre avec le lien ci-contre…";
+        else if (!this.has_categories)
+          return "Vous ne pouvez pas démarrer le jeu sans aucune catégorie.";
+        else return "";
+      }
+      else {
+        return "Veuillez patienter — le maître du jeu va lancer la partie…";
+      }
     }
   },
   methods: {
@@ -163,4 +179,11 @@ div.taginput.control .taginput-container[disabled]
 
   .autocomplete.control
     display: none
+
+div.field > span.b-tooltip
+  display: inline-block
+  width: 100%
+
+  &.is-multiline:after
+    width: 360px !important
 </style>

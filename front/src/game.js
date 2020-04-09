@@ -250,6 +250,14 @@ export default class GameClient {
     });
   }
 
+  switch_master(new_master_uuid) {
+    return this.send_message("switch-master", {
+      master: {
+        uuid: new_master_uuid
+      }
+    })
+  }
+
   ask_start_game() {
     return this.send_message("start-game", {});
   }

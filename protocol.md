@@ -52,6 +52,18 @@ If the client is not master, or if the game's state is not `CONFIG`, the update 
 
 Else, a `config-updated` message will be broadcasted to the players of the game (excluding the client that sent the message), and the new configuration saved server-side.
 
+## `switch-master`
+
+Asks the server to give master power to a specific player. If the sender is not master, the message is ignored.
+
+```json
+{
+  "master": {
+    "uuid": "the new master's UUID"
+  }
+}
+```
+
 ## `start-game`
 
 Starts the game.

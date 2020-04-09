@@ -185,6 +185,11 @@ export default class GameServer {
                 game.update_configuration(connection, user_uuid, message.configuration);
                 break;
 
+            case "switch-master":
+                if (!game || !message.master || !message.master.uuid) return;
+                game.switch_master(user_uuid, message.master.uuid);
+                break;
+
             case "start-game":
                 if (!game) return;
                 game.start(connection, user_uuid);
