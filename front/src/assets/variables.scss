@@ -36,7 +36,12 @@ $colors: (
 $input-border-color: $less-dark;
 $input-hover-border-color: lighten($dark, 14%);
 
+$footer-background-color: transparent;
+$footer-padding: 6rem 1.5rem;
+
 /*
+Below are some tests for a dark theme.
+
 $text: $white;
 
 $label-color: $white;

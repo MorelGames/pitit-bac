@@ -8,34 +8,44 @@
         v-html="loading_subtitle"
       ></p>
     </b-loading>
-    <div
-      class="container"
-      :class="{ 'is-loading': !!loading }"
-      v-if="state != 'PSEUDONYM'"
-    >
-      <div class="columns">
-        <div class="column is-3">
-          <div class="pititbac-logo">
-            <img src="./assets/logo.svg" alt="Pitit Bac" />
+    <main>
+      <div
+        class="container"
+        :class="{ 'is-loading': !!loading }"
+        v-if="state != 'PSEUDONYM'"
+      >
+        <div class="columns">
+          <div class="column is-3">
+            <div class="pititbac-logo">
+              <img src="./assets/logo.svg" alt="Pitit Bac" />
+            </div>
+            <Players></Players>
+            <ShareGame></ShareGame>
           </div>
-          <Players></Players>
-          <ShareGame></ShareGame>
-        </div>
-        <div class="column is-9">
-          <GameConfiguration v-if="state === 'CONFIG'"></GameConfiguration>
-          <Game v-else-if="state === 'ROUND_ANSWERS'"></Game>
-          <GameVote v-else-if="state === 'ROUND_VOTES'"></GameVote>
-          <GameEnd v-else-if="state === 'END'"></GameEnd>
+          <div class="column is-9">
+            <GameConfiguration v-if="state === 'CONFIG'"></GameConfiguration>
+            <Game v-else-if="state === 'ROUND_ANSWERS'"></Game>
+            <GameVote v-else-if="state === 'ROUND_VOTES'"></GameVote>
+            <GameEnd v-else-if="state === 'END'"></GameEnd>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-else class="container" :class="{ 'is-loading': !!loading }">
-      <div class="columns">
-        <div class="column is-half is-offset-3">
-          <AskPseudonym></AskPseudonym>
+      <div v-else class="container" :class="{ 'is-loading': !!loading }">
+        <div class="columns">
+          <div class="column is-half is-offset-3">
+            <AskPseudonym></AskPseudonym>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <em>Pitit Bac</em> est réalisé par <a href="https://amaury.carrade.eu">Amaury Carrade</a>.
+          Cette application est <a href="https://github.com/AmauryCarrade/pitit-bac">à source ouverte, et publiée sous licence libre</a>.
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -99,16 +109,23 @@ export default {
 @import "~bulma"
 @import "~buefy/src/scss/buefy"
 
-html
-  //background-color: darken($dark, 6%)
+body
+  min-height: 100vh
 
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
+  display: flex
+  flex-direction: column
+  min-height: 100vh
+
   color: #2c3e50
-  margin-top: 60px
+  padding-top: 60px
+
+  main
+    flex: 2
 
   .loading-overlay
     flex-direction: column
