@@ -169,6 +169,10 @@ export default class GameClient {
         this.store.dispatch("player_left", message.player.uuid);
         break;
 
+      case "set-suggested-categories":
+        this.store.commit("set_suggested_categories", message.categories);
+        break;
+
       case "config-updated":
         this.store.commit("update_game_configuration", message.configuration);
         break;

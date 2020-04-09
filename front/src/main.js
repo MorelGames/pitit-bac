@@ -60,6 +60,10 @@ const store = new Vuex.Store({
       // all players end (else).
       infinite_duration: 600,
 
+      // These can be used as suggestions for the categories.
+      // Currently used in autocompletion.
+      suggested_categories: [],
+
       configuration: {
         categories: [
           "Pays",
@@ -165,6 +169,10 @@ const store = new Vuex.Store({
 
     update_game_configuration(state, config) {
       state.game.configuration = config;
+    },
+
+    set_suggested_categories(state, categories) {
+      state.game.suggested_categories = categories;
     },
 
     set_countdown_task(state, task) {

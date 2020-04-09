@@ -19,6 +19,10 @@ export default class GameServer {
 
         this.clients_logged_out_at = {};
         this.client_forget_threshold = 1000 * 60 * 60 * 2;
+
+        this.suggested_categories = require("../data/categories.json");
+
+        log_info(`Loaded ${Array.prototype.concat.apply([], this.suggested_categories).length} suggested categories.`);
     }
 
     static check_origin(origin) {

@@ -205,6 +205,19 @@ Indicates that the master player has changed.
 }
 ```
 
+## `set-suggested-categories`
+
+Sends suggested categories to the client. These are used for autocompletion in the configuration form.
+
+```json
+{
+  "categories": [
+    "Category 1",
+    "Category 2"
+  ]
+}
+```
+
 ## `config-updated`
 
 Indicates that the game's config has changed.

@@ -15,9 +15,23 @@
                 : ''
             "
           >
+            <template slot="label">
+              <div class="columns">
+                <div class="column is-8">
+                  Catégories à remplir
+                </div>
+                <div class="column is-4 suggestions-link" v-if="master">
+                  <a href="#" @click.prevent="toggle_suggestions_modale()">Suggestions</a>
+                </div>
+              </div>
+            </template>
             <b-taginput
               v-model="config.categories"
+              :data="filtered_suggestions"
+              autocomplete
+              allow-new
               @input="update_game_configuration"
+              @typing="update_suggestions"
               placeholder="Ajouter une catégorie…"
               :disabled="!master"
               type="is-primary-dark"
@@ -88,6 +102,32 @@
         </div>
       </div>
     </section>
+
+
+    <b-modal :active="suggestions_opened" :on-cancel="toggle_suggestions_modale">
+      <div class="modal-card suggestions-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Suggestions de catégories</p>
+        </header>
+        <section class="modal-card-body">
+          <p>
+            Des idées de catégories sont suggérées ci-dessous. Vous pouvez toujours
+            entrer directement vos propres catégories — n'hésitez pas si vous avez
+            des idées originales ou des références privées !
+          </p>
+          <p>
+            Cliquez sur une catégorie pour l'ajouter ou la supprimer.
+          </p>
+
+          <div class="tags" v-for="(categories_group, i) in suggested_categories" :key="i">
+            <span class="tag is-medium" :class="{'is-primary': has_category(suggestion)}" v-for="(suggestion, i) in categories_group" :key="i" @click="toggle_category(suggestion)">{{ suggestion }}</span>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button" type="button" @click="toggle_suggestions_modale()">Fermer</button>
+        </footer>
+      </div>
+    </b-modal>
   </b-message>
 </template>
 
@@ -97,16 +137,22 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
-      infinite_time_value: 600
+      infinite_time_value: 600,
+      filtered_suggestions: [],
+      suggestions_opened: false
     };
   },
   computed: {
     ...mapState({
       master: state => state.master,
-      infinite_duration: state => state.game.infinite_duration
+      infinite_duration: state => state.game.infinite_duration,
+      suggested_categories: state => state.game.suggested_categories
     }),
     config() {
       return this.$store.state.game.configuration;
+    },
+    flat_suggested_categories() {
+      return Array.prototype.concat.apply([], this.suggested_categories);
     },
     actual_time() {
       return this.$store.getters.is_time_infinite
@@ -151,6 +197,31 @@ export default {
       this.$store.dispatch("update_game_configuration", this.config);
     },
 
+    update_suggestions(text) {
+      text = text.toLowerCase().replace("...", "…");
+      this.filtered_suggestions = this.flat_suggested_categories.filter(category => category.toLowerCase().indexOf(text) >= 0);
+    },
+
+    toggle_suggestions_modale() {
+      this.suggestions_opened = !this.suggestions_opened
+    },
+
+    has_category(category) {
+      return this.$store.state.game.configuration.categories.indexOf(category) !== -1;
+    },
+
+    toggle_category(category) {
+      let index = this.config.categories.indexOf(category);
+      if (index === -1) {
+        this.config.categories.push(category);
+      }
+      else {
+        this.config.categories.splice(index, 1);
+      }
+
+      this.update_game_configuration();
+    },
+
     start_game() {
       this.$store.dispatch("ask_start_game");
     }
@@ -173,6 +244,8 @@ div.taginput.control .taginput-container[disabled]
   background-color: #f8fef6
   border-color: #f8fef6
 
+  cursor: default
+
   .tag
     .delete
       display: none
@@ -186,4 +259,31 @@ div.field > span.b-tooltip
 
   &.is-multiline:after
     width: 360px !important
+
+label.label .suggestions-link
+  text-align: right
+
+  a
+    color: $primary-dark !important
+    font-weight: normal
+
+    cursor: pointer
+    text-decoration: none !important
+
+div.modal-card.suggestions-card
+  width: auto
+
+  p:not(:first-child)
+    margin-top: .8rem
+
+  div.tags
+    margin-top: 1.5rem
+
+    .tag
+      cursor: pointer
+
+      &:hover
+        background-color: $grey-lighter
+        &.is-primary
+          background-color: $primary-dark
 </style>

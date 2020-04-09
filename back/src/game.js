@@ -180,6 +180,10 @@ export class Game {
 
     if (master_player) {
       this.master_player_uuid = player.uuid;
+
+      if (this.state === "CONFIG") {
+        this.send_suggested_categories();
+      }
     }
 
     this.broadcast("player-join", {player: Game.clean_player_for_users(player)});
@@ -315,6 +319,12 @@ export class Game {
     this.broadcast("config-updated", {configuration: this.configuration});
   }
 
+  send_suggested_categories() {
+    this.send_message(this.master_player_uuid, "set-suggested-categories", {
+      categories: this.server.suggested_categories
+    });
+  }
+
   elect_random_master() {
     let online_uuids = this.online_players_uuids();
     if (online_uuids.length > 0) {
@@ -340,6 +350,10 @@ export class Game {
         uuid: this.master_player_uuid
       }
     });
+
+    if (this.state === "CONFIG") {
+      this.send_suggested_categories();
+    }
   }
 
   switch_master(uuid, new_master_uuid) {
@@ -641,5 +655,6 @@ export class Game {
     });
 
     this.broadcast("game-restarted", {});
+    this.send_suggested_categories();
   }
 }
