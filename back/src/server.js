@@ -28,9 +28,10 @@ export default class GameServer {
 
     report_statistics() {
       let games_count = Object.keys(this.running_games).length;
+      let dying_games_count = Object.values(this.running_games).filter(game => game.pending_deletion_task !== null).length;
       let clients_count = Object.keys(this.clients).length;
 
-      log_info(`There are ${clients_count} clients connected in ${games_count} games.`);
+      log_info(`There are ${clients_count} clients connected in ${games_count} games (including ${dying_games_count} dying).`);
     }
 
     start() {
@@ -83,7 +84,6 @@ export default class GameServer {
                         uuid = uuidv4().toLowerCase();
                         let secret = crypto.randomBytes(16).toString("hex");
 
-                        this.clients[uuid] = connection;
                         this.clients_secrets[uuid] = secret;
 
                         uuid_promise = this.send_message(connection, "set-uuid", {uuid: uuid, secret: secret});
@@ -108,6 +108,10 @@ export default class GameServer {
                             log_err(`Client secret: ${json_message.secret || "(empty)"}`);
                             return;
                         }
+                    }
+
+                    if (!this.clients[uuid]) {
+                      this.clients[uuid] = connection;
                     }
 
                     (uuid_promise || Promise.resolve()).then(() => {

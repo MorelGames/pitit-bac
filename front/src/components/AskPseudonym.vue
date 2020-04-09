@@ -28,15 +28,25 @@
         </p>
       </b-field></b-field
     >
+    <p class="joining-existing-game" v-if="is_existing_game">
+      Vous rejoignez une partie existante.<br />
+      Si vous le désirez, vous pouvez également <a href="#" @click.prevent="erase_slug">créer une nouvelle partie</a>.
+    </p>
   </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
       pseudonym: ""
     };
+  },
+  computed: {
+    ...mapState({
+      is_existing_game: state => !!state.game.slug
+    })
   },
   mounted: function() {
     this.pseudonym = localStorage.getItem("pb_pseudonym") || "";
@@ -47,6 +57,9 @@ export default {
         localStorage.setItem("pb_pseudonym", this.pseudonym);
         this.$store.dispatch("set_pseudonym_and_connect", this.pseudonym);
       }
+    },
+    erase_slug() {
+      this.$store.dispatch("set_game_slug", "");
     }
   }
 };
@@ -70,5 +83,8 @@ div.field div.field
       width: 90%
 
 .ask-pseudonym
+  text-align: center
+
+p.joining-existing-game
   text-align: center
 </style>

@@ -14,6 +14,9 @@ $dark-invert: findColorInvert($dark);
 $less-dark: lighten($dark, 10%);
 $less-dark-invert: findColorInvert($less-dark);
 
+$link: $primary-dark;
+$link-invert: findColorInvert($link);
+
 $colors: (
     "white": ($white, $black),
     "black": ($black, $white),

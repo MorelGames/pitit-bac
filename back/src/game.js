@@ -162,6 +162,8 @@ export class Game {
     if (player && !player.online) {
       player.online = true;
       player.connection = connection;
+      player.pseudonym = pseudonym; // It may change.
+      player.master = master_player; // If the player is the first to reconnect it will be master.
     }
     else {
       player = {

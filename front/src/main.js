@@ -155,6 +155,10 @@ const store = new Vuex.Store({
       state.players[online_status.uuid].online = online_status.online;
     },
 
+    change_player_pseudonym(state, user_pseudonym) {
+      state.players[user_pseudonym.uuid].pseudonym = user_pseudonym.pseudonym;
+    },
+
     set_player_readyness(state, readyness) {
       state.players[readyness.uuid].ready = readyness.ready;
     },
@@ -265,16 +269,20 @@ const store = new Vuex.Store({
       if (!state_player) {
         context.commit("add_player", player);
 
-        if (context.state.game_state == "ROUND_ANSWERS") {
-          context.commit("set_player_readyness", {
-            uuid: player.uuid,
-            ready: false
-          });
-        }
+        // The player is always ready, except if we're in the answers
+        // part of a round.
+        context.commit("set_player_readyness", {
+          uuid: player.uuid,
+          ready: context.state.game_state !== "ROUND_ANSWERS"
+        });
       } else {
         context.commit("change_player_online_status", {
           uuid: player.uuid,
           online: true
+        });
+        context.commit("change_player_pseudonym", {
+          uuid: player.uuid,
+          pseudonym: player.pseudonym
         });
       }
 
