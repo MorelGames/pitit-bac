@@ -26,8 +26,8 @@ export default class GameServer {
     }
 
     static check_origin(origin) {
-        log_info("Checking origin: " + origin);
-        return true;
+      if (!process.env.ALLOWED_ORIGIN) return true;
+      return origin.toLowerCase() === process.env.ALLOWED_ORIGIN;
     }
 
     report_statistics() {
@@ -49,7 +49,7 @@ export default class GameServer {
         this.ws_server.on('request', request => {
             if (!GameServer.check_origin(request.origin)) {
                 request.reject();
-                log_err('Connection from origin ' + request.origin + ' rejected.');
+                log_err(`Connection from origin ${request.origin} rejected.`);
                 return;
             }
 
