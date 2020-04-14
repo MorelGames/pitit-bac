@@ -1,0 +1,17 @@
+[Unit]
+Description=Pitit Bac game server
+After=network-online.target
+
+[Service]
+Type=simple
+
+User=nginx
+Group=nginx
+UMask=007
+
+WorkingDirectory=/path/to/pitit-bac
+ExecStart=/path/to/pitit-bac/start-back.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
