@@ -5,10 +5,12 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faCheck,
   faExclamationCircle,
+  faChevronRight,
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
   faUserShield,
+  faClipboard,
   faAward
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -31,10 +33,12 @@ Vue.config.productionTip = false;
 library.add(
   faCheck,
   faExclamationCircle,
+  faChevronRight,
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
   faUserShield,
+  faClipboard,
   faAward
 );
 

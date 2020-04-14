@@ -78,9 +78,9 @@
     </b-notification>
 
     <article class="box all-scores">
-      <div class="level" v-for="(score, i) in scores" :key="i">
+      <div class="level is-mobile" v-for="(score, i) in scores" :key="i">
         <div class="level-left">
-          <div class="columns is-rank-and-pseudonym">
+          <div class="columns is-rank-and-pseudonym is-mobile">
             <div class="column is-3 is-rank">
               {{ score.rank }}<sup>{{ score.rank === 1 ? "er" : "ème" }}</sup>
             </div>
@@ -189,6 +189,11 @@ export default {
     border-radius: 6px
     text-align: center
 
+    animation: fadein 1s 1
+
+    +mobile
+      border-radius: 0
+
     .hero-body
       padding: 4rem 1rem
 
@@ -237,6 +242,8 @@ export default {
         width: 100%
 
         .is-rank
+          flex: 1
+
           font-size: 2.2em
           font-weight: 200
           text-align: center
@@ -250,4 +257,13 @@ export default {
         font-size: 1.4em
         span
           font-weight: bold
+
+@keyframes fadein
+  0%
+    opacity: 0
+    transform: translateY(20px)
+  100%
+    opacity: 1
+    transform: translateY(0)
+
 </style>

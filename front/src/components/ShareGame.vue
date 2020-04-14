@@ -1,44 +1,99 @@
 <template>
-  <b-field
-    label="Partager la partie"
-    message="Invitez les autres joueurs à ouvrir cette adresse dans leur navigateur pour rejoindre cette partie."
-    size="is-small"
-    class="share-game"
-  >
-    <b-input
-      :value="share_url"
+  <section class="share-game">
+    <h3>Partager la partie</h3>
+    <b-field
+      grouped
       size="is-small"
-      readonly
-      @focus="$event.target.select()"
     >
-    </b-input>
-  </b-field>
+      <b-input
+        :value="share_url"
+        size="is-small"
+        readonly
+        expanded
+        id="share-url-field"
+        @focus="$event.target.select()"
+      >
+      </b-input>
+      <p class="control">
+        <button class="button is-light" @click.stop.prevent="copy_url">
+          <b-tooltip :label="copied ? 'Copié !' : 'Copier dans le presse-papier'" position="is-bottom" type="is-light" multiline>
+            <b-icon pack="fas" icon="clipboard" size="is-small"></b-icon>
+          </b-tooltip>
+        </button>
+      </p>
+    </b-field>
+    <p class="share-invite">
+      Invitez les autres joueurs à ouvrir cette adresse dans leur navigateur pour rejoindre cette partie.
+    </p>
+  </section>
 </template>
 
 <script>
 import { mapState } from "vuex";
 
 export default {
+  data() {
+    return {
+      copied: false
+    }
+  },
   computed: mapState({
     share_url(state) {
       return window.location.origin + "/#" + state.game.slug;
     }
-  })
+  }),
+  methods: {
+    copy_url() {
+      let share_url_field = document.getElementById('share-url-field');
+      share_url_field.select();
+
+      try {
+        if (document.execCommand('copy')) {
+          this.copied = true;
+          setTimeout(() => this.copied = false, 1600);
+        }
+      }
+      catch (e) {
+        console.error("Unable to copy game URL", e);
+      }
+
+      share_url_field.blur();
+    }
+  }
 };
 </script>
 
 <style lang="sass">
 @import "../assets/variables"
 
-.field.share-game
-  label, p.help
-    margin-bottom: 0
+.share-game
+  +mobile
+    margin: 0 1rem 1.5rem
 
+  h3
     position: relative
-    left: 2px
+    left: 1px
 
-    text-align: left
+    font-weight: bold
+    margin: 1rem 0 .4rem
 
-  p.help
+  .field.is-grouped
+    margin-bottom: .4em
+    align-items: center
+
+    input
+      border-color: $grey-light
+      border-radius: 4px
+
+      font-size: 0.9rem
+
+      +mobile
+        font-size: 0.95rem
+
+  .share-invite
+    position: relative
+    left: 1px
+
+    font-size: .9em
     color: $grey-dark !important
 </style>

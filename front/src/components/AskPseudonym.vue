@@ -1,13 +1,15 @@
 <template>
-  <div>
+  <div class="ask-pseudonym">
     <header class="init-logo">
       <img src="../assets/logo.svg" alt="Pitit Bac" />
     </header>
     <b-field
-      label="Comment doit-on vous appeler ?"
       custom-class="is-large ask-pseudonym"
       position="is-centered"
     >
+      <template slot="label">
+        Comment doit-on vous appeler{{ '\xa0' }}?
+      </template>
       <b-field>
         <b-input
           placeholder="Entrez votre nom…"
@@ -23,7 +25,7 @@
             aria-label="Se connecter au salon de jeu"
             @click.once="start"
           >
-            →
+            <b-icon icon="chevron-right"></b-icon>
           </button>
         </p>
       </b-field></b-field
@@ -67,6 +69,10 @@ export default {
 
 <style lang="sass">
 @import "~bulma/sass/utilities/mixins"
+
+.ask-pseudonym
+  +mobile
+    padding: 0 1rem
 
 div.field div.field
   margin-top: 2em !important

@@ -16,7 +16,7 @@
             "
           >
             <template slot="label">
-              <div class="columns">
+              <div class="columns is-mobile">
                 <div class="column is-8">
                   Catégories à remplir
                 </div>
@@ -38,7 +38,7 @@
             >
             </b-taginput>
           </b-field>
-          <div class="field">
+          <div class="field start-button is-desktop">
             <b-tooltip multilined position="is-bottom" :label="start_button_tooltip">
             <b-button
               type="is-primary is-medium"
@@ -56,6 +56,7 @@
           >
             <b-slider
               size="is-medium"
+              class="has-lots-of-ticks"
               :min="1"
               :max="20"
               :tooltip="false"
@@ -69,12 +70,18 @@
             </b-slider>
           </b-field>
 
-          <b-field :label="'Durée maximale par tour : ' + actual_time">
+          <b-field>
+            <template slot="label">
+              Durée maximale par tour :
+              <span class="is-date-desktop">{{ actual_time }}</span>
+              <span class="is-date-mobile">{{ actual_time_mobile }}</span>
+            </template>
             <b-slider
               size="is-medium"
+              class="has-lots-of-ticks"
               :min="15"
               :max="infinite_duration"
-              :step="5"
+              :step="15"
               :tooltip="false"
               :disabled="!master"
               v-model="config.time"
@@ -103,8 +110,18 @@
       </div>
     </section>
 
+    <div class="field start-button is-mobile">
+      <b-tooltip multilined position="is-bottom" :label="start_button_tooltip">
+      <b-button
+        type="is-primary is-medium"
+        expanded
+        :disabled="!master || !can_start"
+        @click="start_game"
+        >Démarrer la partie</b-button
+      ></b-tooltip>
+    </div>
 
-    <b-modal :active="suggestions_opened" :on-cancel="toggle_suggestions_modale">
+    <b-modal :active="suggestions_opened" :on-cancel="toggle_suggestions_modale" full-screen>
       <div class="modal-card suggestions-card">
         <header class="modal-card-head">
           <p class="modal-card-title">Suggestions de catégories</p>
@@ -159,6 +176,11 @@ export default {
         ? "infinie"
         : this.format_seconds(this.config.time, true);
     },
+    actual_time_mobile() {
+      return this.$store.getters.is_time_infinite
+        ? "infinie"
+        : this.format_seconds(this.config.time, true, true);
+    },
     can_start() {
       return this.has_categories && this.has_players;
     },
@@ -182,19 +204,23 @@ export default {
     }
   },
   methods: {
-    format_seconds(seconds, long) {
+    format_seconds(seconds, long, mobile) {
       let mm = Math.floor(seconds / 60);
       let ss = seconds - mm * 60;
 
       return long
         ? (mm > 0 ? `${mm} minute${mm > 1 ? "s" : ""}` : "") +
-            (mm > 0 && ss > 0 ? " et" : "") +
-            (ss > 0 ? ` ${ss} seconde${ss > 1 ? "s" : ""}` : "")
+            (mm > 0 && ss > 0 && !mobile ? " et" : "") +
+            (ss > 0 ? (` ${ss}` + (mobile ? '' : ` seconde${ss > 1 ? "s" : ""}`)) : "")
         : `${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
     },
 
     update_game_configuration() {
-      this.$store.dispatch("update_game_configuration", this.config);
+      // We update the configuration on the next tick; else, when we click on a slider
+      // directly on another point (without dragging the cursor), the value sent to
+      // the server is the value before the update, and the configuration update
+      // messages resets the value to the previous one immediatly.
+      this.$nextTick(() => this.$store.dispatch("update_game_configuration", this.config));
     },
 
     update_suggestions(text) {
@@ -231,6 +257,28 @@ export default {
 
 <style lang="sass">
 @import "../assets/variables"
+
+.message
+  .message-header
+    +mobile
+      border-radius: 0
+  .message-body
+    .media-content
+      overflow-x: inherit
+
+      div.column.is-half:first-of-type
+        +mobile
+          padding-bottom: 0
+
+      .start-button
+        &.is-desktop
+          +mobile
+            display: none
+        &.is-mobile
+          +tablet
+            display: none
+          +mobile
+            margin-top: 1.5rem
 
 label.switch span.control-label
   position: relative
@@ -270,8 +318,32 @@ label.label .suggestions-link
     cursor: pointer
     text-decoration: none !important
 
+.is-date-desktop
+  +mobile
+    display: none
+.is-date-mobile
+  +tablet
+    display: none
+
+.b-slider.has-lots-of-ticks
+  +mobile
+    .b-slider-track
+      .b-slider-tick:nth-of-type(2n)
+        display: none
+
 div.modal-card.suggestions-card
   width: auto
+
+  +mobile
+    width: 100%
+    height: 100%
+    max-height: 100vh
+    margin: 0
+    background-color: whitesmoke
+
+    p
+      width: calc(100vw - 2rem)
+      text-align: justify
 
   p:not(:first-child)
     margin-top: .8rem

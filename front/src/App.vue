@@ -14,7 +14,10 @@
         :class="{ 'is-loading': !!loading }"
         v-if="state != 'PSEUDONYM'"
       >
-        <div class="columns">
+        <div class="pititbac-logo is-mobile" aria-hidden="true">
+          <img src="./assets/logo.svg" alt="Pitit Bac" />
+        </div>
+        <div class="columns layout-columns">
           <div class="column is-3">
             <div class="pititbac-logo">
               <img src="./assets/logo.svg" alt="Pitit Bac" />
@@ -38,7 +41,7 @@
         </div>
       </div>
     </main>
-    <footer class="footer">
+    <footer class="footer" :class="{ 'is-loading': !!loading }">
       <div class="content has-text-centered">
         <p>
           <em>Pitit Bac</em> est réalisé par <a href="https://amaury.carrade.eu">Amaury Carrade</a>.
@@ -111,6 +114,7 @@ export default {
 
 body
   min-height: 100vh
+  overflow-x: hidden
 
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
@@ -124,20 +128,36 @@ body
   color: #2c3e50
   padding-top: 60px
 
+  +mobile
+    padding: 1.6rem 0 1rem 0
+
+  +tablet
+    padding: 1.6rem 1rem
+
   main
     flex: 2
+
+  .notification
+    padding-right: 1.5rem !important
+
+    .media-content
+      overflow: hidden
 
   .loading-overlay
     flex-direction: column
 
     padding: 1em 20%
+    background-color: rgba(white, .8)
 
-    %mobile
+    +mobile
       padding: 1em
 
     p
       font-size: 2.8em
       font-weight: 200
+
+      +mobile
+        font-size: 1.8em
 
       text-align: center
 
@@ -151,7 +171,10 @@ body
         font-size: 1.8em
         animation: none
 
-  .container
+        +mobile
+          font-size: 1.3em
+
+  .container, .footer
     &.is-loading
       filter: blur(4px)
 
@@ -162,6 +185,29 @@ body
   .pititbac-logo
     margin-top: .2rem
     margin-bottom: 2rem
+
+    +tablet
+      display: none
+
+    &.is-mobile
+      +mobile
+        display: block
+        text-align: center
+
+        img
+          width: 90%
+          max-height: 4rem
+
+    &:not(.is-mobile)
+      +mobile
+        display: none
+      +tablet
+        display: block
+
+  .columns.layout-columns
+    +mobile
+      display: flex
+      flex-direction: column-reverse
 
 @keyframes pulse
   0%

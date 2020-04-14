@@ -31,6 +31,7 @@
 
     <b-notification
       type="is-primary"
+      class="interrupted-by"
       :active="true"
       :closable="false"
       v-if="interrupted && interrupted_by"
@@ -100,11 +101,7 @@
                     </b-tooltip>
                   </li>
                   <li v-if="!answer.answer.valid">Proposition invalide</li>
-                  <li
-                    v-else-if="!answer_accepted(category, answer.author.uuid)"
-                  >
-                    Refusé par la majorité
-                  </li>
+                  <li v-else-if="!answer_accepted(category, answer.author.uuid)">Refusé par la majorité</li>
                 </ul>
               </div>
             </div>
@@ -113,7 +110,8 @@
             <div v-for="(vote, k) in answer.votes" :key="k">
               <div class="block">
                 <b-tooltip :label="vote.voter.pseudonym">
-                  <b-icon :icon="vote.vote ? 'check' : 'times'"></b-icon>
+                  <b-icon icon="check" v-if="vote.vote"></b-icon>
+                  <b-icon icon="times" v-else></b-icon>
                 </b-tooltip>
               </div>
             </div>
@@ -216,14 +214,27 @@ export default {
 <style lang="sass">
 @import "~bulma/sass/utilities/_all"
 
-.votes-header
+.notification.votes-header
   position: sticky !important
   top: 10px
 
   z-index: 40
 
+  +mobile
+    border-radius: 0
+
+  .media-content
+    overflow: hidden
+
   .votes-header-column
     align-items: center
+
+    p.content
+      text-align: justify
+
+.notification.interrupted-by
+  +mobile
+    border-radius: 0
 
 .all-answers
   display: flex
@@ -235,11 +246,21 @@ export default {
     width: 99%
     text-align: left
 
+    // Avoids long answers to overflow
+    .level-left
+      flex: 2
+
     .answer
       .answer-checkbox
         padding-top: .2em
+      .media-content
+        overflow: hidden
       .answer-text
+        padding-right: 1em
         font-size: 1.2em
+        text-align: justify
+        +mobile
+          padding-right: 0
 
       ul.answer-meta
         font-size: .9em
@@ -265,4 +286,12 @@ export default {
       &.is-empty .answer-text
         color: $grey-light
         font-style: italic
+
+    .level-right
+      +mobile
+        display: flex
+        flex-direction: row
+        align-items: center
+
+        margin-top: .4rem
 </style>

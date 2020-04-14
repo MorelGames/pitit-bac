@@ -1,5 +1,5 @@
 <template>
-  <section class="columns">
+  <section class="columns game-answers">
     <div class="column is-9 answers-column">
       <b-notification :active="true" :closable="false">
         Remplissez toutes les catégories par des mots ou expressions commençant
@@ -9,28 +9,30 @@
           >Le premier joueur qui valide interrompt tous les autres !</span
         >
       </b-notification>
-      <b-field
-        v-for="(category, i) in categories"
-        :key="i"
-        :label="category"
-        :type="!is_category_valid(category) ? 'is-danger' : ''"
-        :message="
-          !is_category_valid(category)
-            ? 'Vous devez entrer un mot ou une expression commençant par la lettre ' +
-              letter +
-              '.'
-            : ''
-        "
-      >
-        <b-input
-          :placeholder="letter + '…'"
-          size="is-medium"
-          :autofocus="i == 0"
-          v-model="answers[category]"
-          @input="answers_updated"
-          :disabled="end_signal_received"
-        ></b-input>
-      </b-field>
+      <div class="answers-form">
+        <b-field
+          v-for="(category, i) in categories"
+          :key="i"
+          :label="category"
+          :type="!is_category_valid(category) ? 'is-danger' : ''"
+          :message="
+            !is_category_valid(category)
+              ? 'Vous devez entrer un mot ou une expression commençant par la lettre ' +
+                letter +
+                '.'
+              : ''
+          "
+        >
+          <b-input
+            :placeholder="letter + '…'"
+            size="is-medium"
+            :autofocus="i == 0"
+            v-model="answers[category]"
+            @input="answers_updated"
+            :disabled="end_signal_received"
+          ></b-input>
+        </b-field>
+      </div>
     </div>
     <div class="column is-3 time-and-button-column">
       <div class="box inner-time-and-button">
@@ -263,6 +265,10 @@ export default {
       margin-top: 1.4em
     .label
       text-align: left
+
+  .answers-form
+    +mobile
+      margin: 0 1rem
 
 .column.time-and-button-column
   display: flex

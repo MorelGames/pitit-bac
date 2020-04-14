@@ -1,5 +1,5 @@
 <template>
-  <nav class="panel">
+  <nav class="panel players-list">
     <div class="panel-block" v-for="(player, i) in sorted_players" :key="i">
       <span class="panel-icon">
         <b-icon
@@ -68,8 +68,8 @@ export default {
       this.$buefy.dialog.confirm({
         title: `Donner le pouvoir à ${player.pseudonym} ?`,
         message: `<strong>${player.pseudonym}</strong> pourra gérer la partie, sa configuration, ou relancer une nouvelle partie à la fin. Vous perdrez ces pouvoirs.<br /><br /><span class="has-text-grey">Le maître du jeu ne peut pas influencer les votes ou la partie, uniquement sa configuration ou son relancement.</span>`,
-        confirmText: "Oui, donner le pouvoir",
-        cancelText: "Garder le pouvoir pour soi",
+        confirmText: "Donner le pouvoir",
+        cancelText: "Garder le pouvoir à soi",
 
         type: "is-primary",
         hasIcon: true,
@@ -88,8 +88,12 @@ export default {
 <style lang="sass">
 @import "../assets/variables"
 
-.panel
+.panel.players-list
   border-radius: 5px
+
+  +mobile
+    margin-left: 1rem
+    margin-right: 1rem
 
   .panel-block
     align-items: center
