@@ -121,7 +121,7 @@
       ></b-tooltip>
     </div>
 
-    <b-modal :active="suggestions_opened" :on-cancel="toggle_suggestions_modale" full-screen>
+    <b-modal :active="suggestions_opened" :on-cancel="toggle_suggestions_modale">
       <div class="modal-card suggestions-card">
         <header class="modal-card-head">
           <p class="modal-card-title">Suggestions de catégories</p>
