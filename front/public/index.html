@@ -30,12 +30,24 @@
 
 <body>
   <noscript>
-    <p style="margin:2rem;text-align:center;">
-      <strong style="font-size: 1.2em;font-weight:bold;">Désolé, mais <em>Pitit Bac</em> ne peut pas fonctionner sans JavaScript.</strong><br /><br />
+    <style>
+      noscript p {
+        margin: 2rem;
+        text-align: center;
+      }
+      noscript p strong {
+        font-size: 1.2em;
+        font-weight:bold;
+      }
+    </style>
+    <p>
+      <img src="<%= BASE_URL %>img/favicon-128.png" alt="Pitit Bac" />
+    </p>
+    <p>
+      <strong>Désolé, mais <em>Pitit Bac</em> ne peut pas fonctionner sans JavaScript.</strong><br /><br />
       <a href="https://enable-javascript.com/fr/" target="_blank">Voici des instructions pour activer JavaScript dans votre navigateur.</a>
     </p>
   </noscript>
   <div id="app"></div>
-  <!-- built files will be auto injected -->
 </body>
 </html>
