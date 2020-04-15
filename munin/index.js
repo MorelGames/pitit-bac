@@ -48,7 +48,7 @@ exports.Munin = class Munin {
       else if (url.searchParams.has("config")) {
         if (source.config) {
           Object.keys(source.config).forEach(config_key => {
-            response.write(`graph_${config_key} ${source.config[config_key]}\n`);
+            response.write(`${config_key} ${source.config[config_key]}\n`);
           });
         }
         Object.keys(source.data).forEach(data_name => {
