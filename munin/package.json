@@ -1,0 +1,16 @@
+{
+  "name": "munin-http",
+  "version": "1.0.0",
+  "description": "Expose data to Munin from a Node HTTP server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "munin",
+    "http",
+    "munin-plugin"
+  ],
+  "author": "Amaury Carrade",
+  "license": "CECILL-B"
+}

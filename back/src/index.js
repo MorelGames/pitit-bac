@@ -9,7 +9,8 @@ const DEBUG = (process.env.NODE_ENV || 'development') != "production";
 const SERVER_PORT = process.env.PITIT_BAC_WS_PORT || 62868;
 
 let server = http.createServer(function(request, response) {
-    log_info('Received request for ' + request.url)
+    if (request.url.startsWith("/munin")) return;
+
     response.writeHead(404)
     response.end()
 });

@@ -176,6 +176,8 @@ export class Game {
       };
 
       this.players[player.uuid] = player;
+
+      this.server.increment_statistic("players");
     }
 
     if (master_player) {
@@ -367,6 +369,8 @@ export class Game {
 
     this.log("Starting game");
     this.next_round();
+
+    this.server.increment_statistic("games");
   }
 
   next_round() {
@@ -375,6 +379,8 @@ export class Game {
     this.broadcast("round-starts-soon", {
       countdown: this.ROUND_COUNTDOWN
     });
+
+    this.server.increment_statistic("rounds");
 
     setTimeout(() => {
       this.state = "ROUND_ANSWERS";
@@ -394,6 +400,8 @@ export class Game {
         "round": this.current_round,
         "letter": this.current_letter
       });
+
+      this.log(`Starting round #${this.current_round} with letter ${this.current_letter}.`);
 
       this.current_started = Date.now();
 

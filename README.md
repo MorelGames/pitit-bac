@@ -91,3 +91,7 @@ Use `systemd` or another dæmon system to run the backend server—see the servi
 A nginx configuration file is provided to serve the front and proxy the websocket requests to the backend, also in the `production` folder.
 
 To update, re-build the front and restart the systemd service.
+
+### Munin
+
+Some metrics are exposed under `/munin/running_games` and `/munin/all_games`. Check out the README of the [munin-http](munin/README.md) module for documentation on how to install these into a Munin node.

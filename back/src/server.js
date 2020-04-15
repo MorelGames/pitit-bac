@@ -1,7 +1,12 @@
 import crypto from "crypto";
 
+import fs from "fs";
+import path from "path";
+
 import { v4 as uuidv4 } from "uuid";
 import { server as WebSocketServer } from "websocket";
+
+import { Munin } from "munin-http";
 
 import { Game } from "./game";
 import { log_info, log_err, log_debug } from "./logging";
@@ -20,22 +25,95 @@ export default class GameServer {
         this.clients_logged_out_at = {};
         this.client_forget_threshold = 1000 * 60 * 60 * 2;
 
+        this.setup_munin();
+
         this.suggested_categories = require("../data/categories.json");
 
+        try {
+          this.statistics = require("../data/statistics.json")
+        }
+        catch (e) {
+          this.statistics = {};
+        }
+
         log_info(`Loaded ${Array.prototype.concat.apply([], this.suggested_categories).length} suggested categories.`);
+    }
+
+    setup_munin() {
+      this.munin = new Munin(this.http_server, "/munin");
+
+      this.munin.add_source("running_games", {
+        "config": {
+          "graph_title": "Running games",
+          "graph_info": "A view on currently running games and players.",
+          "graph_vlabel": "Amount",
+          "graph_category": "pitit_bac"
+        },
+        "data": {
+          "games": {
+            "label": "Games",
+            "warning": 400,
+            "critical": 1000,
+            "value": () => Object.keys(this.running_games).length
+          },
+          "active_games": {
+            "label": "Active games",
+            "value": () => Object.values(this.running_games).filter(game => game.state !== "CONFIG").length
+          },
+          "dying_games": {
+            "label": "Dying games",
+            "value": () => Object.values(this.running_games).filter(game => game.pending_deletion_task !== null).length
+          },
+          "clients": {
+            "label": "Connected clients",
+            "warning": "1000",
+            "value": () => Object.keys(this.clients).length
+          }
+        }
+      });
+
+      this.munin.add_source("all_games", {
+        "config": {
+          "graph_title": "All games",
+          "graph_info": "Number of games and game players since the beginning.",
+          "graph_vlabel": "Amount",
+          "graph_category": "pitit_bac"
+        },
+        "data": {
+          "games": {
+            "label": "Games",
+            "data": () => this.statistics["games"] || 0
+          },
+          "rounds": {
+            "label": "Rounds",
+            "data": () => this.statistics["rounds"] || 0
+          },
+          "players": {
+            "label": "Players (non-unique)",
+            "data": () => this.statistics["players"] || 0
+          },
+        }
+      });
+    }
+
+    increment_statistic(name) {
+      if (!this.statistics[name]) {
+        this.statistics[name] = 1;
+      }
+      else {
+        this.statistics[name]++;
+      }
+
+      fs.writeFile(path.join(__dirname, "../data/statistics.json"), JSON.stringify(this.statistics), err => {
+        if (err) {
+          log_err("Unable to write statistics file: "+ err);
+        }
+      });
     }
 
     static check_origin(origin) {
       if (!process.env.ALLOWED_ORIGIN) return true;
       return origin.toLowerCase() === process.env.ALLOWED_ORIGIN;
-    }
-
-    report_statistics() {
-      let games_count = Object.keys(this.running_games).length;
-      let dying_games_count = Object.values(this.running_games).filter(game => game.pending_deletion_task !== null).length;
-      let clients_count = Object.keys(this.clients).length;
-
-      log_info(`There are ${clients_count} clients connected in ${games_count} games (including ${dying_games_count} dying).`);
     }
 
     start() {
@@ -54,7 +132,6 @@ export default class GameServer {
             }
 
             var connection = request.accept('pb-protocol', request.origin);
-            log_info('New peer connected from ' + connection.remoteAddress + ' successfully.');
 
             // We send the server's runtime identifier. This allows the client to know if
             // it need to fully reload.
@@ -129,8 +206,6 @@ export default class GameServer {
             });
 
             connection.on('close', (reasonCode, description) => {
-                log_info('Peer ' + connection.remoteAddress + ' disconnected.');
-
                 // We log it out from the game, if any.
                 let uuid = this.get_uuid_for_connection(connection);
                 let game = this.uuid_to_game[uuid];
@@ -144,8 +219,6 @@ export default class GameServer {
                 delete this.clients[uuid];
 
                 this.clients_logged_out_at[uuid] = new Date().getTime();
-
-                this.report_statistics();
             });
         });
 
@@ -251,8 +324,6 @@ export default class GameServer {
     join_game(connection, user_uuid, pseudonym, game) {
         game.join(connection, user_uuid, pseudonym);
         this.uuid_to_game[user_uuid] = game;
-
-        this.report_statistics();
     }
 
     delete_game(slug) {
