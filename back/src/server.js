@@ -82,15 +82,15 @@ export default class GameServer {
         "data": {
           "games": {
             "label": "Games",
-            "data": () => this.statistics["games"] || 0
+            "value": () => this.statistics["games"] || 0
           },
           "rounds": {
             "label": "Rounds",
-            "data": () => this.statistics["rounds"] || 0
+            "value": () => this.statistics["rounds"] || 0
           },
           "players": {
             "label": "Players (non-unique)",
-            "data": () => this.statistics["players"] || 0
+            "value": () => this.statistics["players"] || 0
           },
         }
       });
