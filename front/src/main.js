@@ -231,7 +231,17 @@ const store = new Vuex.Store({
      * removes logged-out players completly.
      */
     reset_state_for_restart(state) {
-      state.game.current_round = {};
+      state.game.current_round = {
+        round: 0,
+        letter: "",
+        time_left: -1,
+        ended: false,
+        answers: {},
+        votes: {},
+        interrupted_by: null,
+        countdown_task: null
+      };
+
       state.game.scores = [];
 
       Object.values(state.players)
