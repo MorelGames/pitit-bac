@@ -12,16 +12,16 @@
       >
       </b-input>
       <p class="control">
-        <button class="button is-light" @click.stop.prevent="copy_url">
-          <b-tooltip
-            :label="copied ? 'Copié !' : 'Copier dans le presse-papier'"
-            position="is-bottom"
-            type="is-light"
-            multiline
-          >
+        <b-tooltip
+          :label="copied ? 'Copié !' : 'Copier dans le presse-papier'"
+          position="is-bottom"
+          type="is-light"
+          multiline
+        >
+          <button class="button is-light" @click.stop.prevent="copy_url">
             <b-icon pack="fas" icon="clipboard" size="is-small"></b-icon>
-          </b-tooltip>
-        </button>
+          </button>
+        </b-tooltip>
       </p>
     </b-field>
     <p class="share-invite">
