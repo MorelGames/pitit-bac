@@ -3,24 +3,6 @@ import { log_info } from "./logging";
 
 export class Game {
   constructor(slug, server) {
-    this.SCORES = {
-      // The answer is valid, accepted by the players, and is not duplicated.
-      valid: 10,
-
-      // Same as the above, but another player answered the same thing for this
-      // category.
-      duplicate: 5,
-
-      // The answer is invalid (does not start with the good letter).
-      invalid: 0,
-
-      // The answer is valid, but was refused by the other players.
-      refused: 0,
-
-      // The answer is empty.
-      empty: 0
-    };
-
     // The duration of the countdowns before a round.
     this.ROUND_COUNTDOWN = 3;
 
@@ -49,7 +31,25 @@ export class Game {
       ],
       stopOnFirstCompletion: true,
       turns: 4,
-      time: this.infinite_duration
+      time: this.infinite_duration,
+      alphabet: "ABCDEFGHIJLMNOPQRSTUV",
+      scores: {
+        // The answer is valid, accepted by the players, and is not duplicated.
+        valid: 10,
+
+        // Same as the above, but another player answered the same thing for this
+        // category.
+        duplicate: 5,
+
+        // The answer is invalid (does not start with the good letter).
+        invalid: 0,
+
+        // The answer is valid, but was refused by the other players.
+        refused: 0,
+
+        // The answer is empty.
+        empty: 0
+      }
     };
 
     this.state = "CONFIG";
@@ -67,7 +67,6 @@ export class Game {
     this.rounds = {};
     this.final_scores = [];
 
-    this.letters = "ABCDEFGHIJKLMNOPQRSTUVWXY";
     this.used_letters = [];
 
     this.pending_deletion_task = null;
@@ -111,15 +110,14 @@ export class Game {
   }
 
   random_letter() {
-    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let letter = "";
 
-    if (this.used_letters.length == letters.length) {
+    if (this.used_letters.length == this.configuration.alphabet.length) {
       this.used_letters = [];
     }
 
     while (!letter || this.used_letters.indexOf(letter) !== -1) {
-      letter = letters.charAt(Math.floor(Math.random() * letters.length));
+      letter = this.configuration.alphabet.charAt(Math.floor(Math.random() * this.configuration.alphabet.length));
     }
 
     this.used_letters.push(letter);
@@ -308,6 +306,28 @@ export class Game {
       return;
     }
 
+    /*
+
+    alphabet: "ABCDEFGHIJLMNOPQRSTUV",
+    scores: {
+      // The answer is valid, accepted by the players, and is not duplicated.
+      valid: 10,
+
+      // Same as the above, but another player answered the same thing for this
+      // category.
+      duplicate: 5,
+
+      // The answer is invalid (does not start with the good letter).
+      invalid: 0,
+
+      // The answer is valid, but was refused by the other players.
+      refused: 0,
+
+      // The answer is empty.
+      empty: 0
+    }
+    */
+
     // Else we update the internal configuration and send the update to everyone.
     this.configuration = {
       categories: configuration.categories
@@ -316,6 +336,14 @@ export class Game {
       stopOnFirstCompletion: !!configuration.stopOnFirstCompletion,
       turns: Math.max(Math.abs(parseInt(configuration.turns) || 4), 1),
       time: Math.max(Math.abs(parseInt(configuration.time) || 400), 15),
+      alphabet: configuration.alphabet,
+      scores: {
+        valid: parseInt(configuration.scores.valid) || 10,
+        duplicate: parseInt(configuration.scores.duplicate) || 5,
+        invalid: parseInt(configuration.scores.invalid) || 0,
+        refused: parseInt(configuration.scores.refused) || 0,
+        empty: parseInt(configuration.scores.empty) || 0,
+      }
     };
 
     this.broadcast("config-updated", {configuration: this.configuration});
@@ -583,15 +611,15 @@ export class Game {
           let player_votes = votes[uuid];
 
           if (!player_votes || !player_votes.answer) {
-            score += this.SCORES.empty;
+            score += this.configuration.scores.empty;
             return;
           }
           else if (!player_votes.valid) {
-            score += this.SCORES.invalid;
+            score += this.configuration.scores.invalid;
             return;
           }
           else if (!is_answer_accepted(player_votes.votes)) {
-            score += this.SCORES.refused;
+            score += this.configuration.scores.refused;
             return;
           }
 
@@ -609,10 +637,10 @@ export class Game {
           });
 
           if (unique) {
-            score += this.SCORES.valid;
+            score += this.configuration.scores.valid;
           }
           else {
-            score += this.SCORES.duplicate;
+            score += this.configuration.scores.duplicate;
           }
         });
       });

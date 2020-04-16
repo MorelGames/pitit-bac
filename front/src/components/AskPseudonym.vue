@@ -3,12 +3,9 @@
     <header class="init-logo">
       <img src="../assets/logo.svg" alt="Pitit Bac" />
     </header>
-    <b-field
-      custom-class="is-large ask-pseudonym"
-      position="is-centered"
-    >
+    <b-field custom-class="is-large ask-pseudonym" position="is-centered">
       <template slot="label">
-        Comment doit-on vous appeler{{ '\xa0' }}?
+        Comment doit-on vous appeler{{ "\xa0" }}?
       </template>
       <b-field>
         <b-input
@@ -27,12 +24,12 @@
           >
             <b-icon icon="chevron-right"></b-icon>
           </button>
-        </p>
-      </b-field></b-field
-    >
+        </p> </b-field
+    ></b-field>
     <p class="joining-existing-game" v-if="is_existing_game">
       Vous rejoignez une partie existante.<br />
-      Si vous le désirez, vous pouvez également <a href="#" @click.prevent="erase_slug">créer une nouvelle partie</a>.
+      Si vous le désirez, vous pouvez également
+      <a href="#" @click.prevent="erase_slug">créer une nouvelle partie</a>.
     </p>
   </div>
 </template>

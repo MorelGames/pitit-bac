@@ -259,7 +259,7 @@ export default class GameClient {
       master: {
         uuid: new_master_uuid
       }
-    })
+    });
   }
 
   ask_start_game() {

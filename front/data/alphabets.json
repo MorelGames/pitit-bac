@@ -1,0 +1,17 @@
+{
+  "Alphabets internationaux": {
+    "description": "Différents alphabets complets de différents systèmes d'écriture.",
+    "alphabets": {
+      "Alphabet latin": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "Alphabet grec": "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
+      "Alphabet cyrillique": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ"
+    }
+  },
+  "Alphabets simplifiés": {
+    "description": "Les alphabets de différentes langues, mais sans les lettres les plus rares.",
+    "alphabets": {
+      "Français": "ABCDEFGHIJLMNOPQRSTUV",
+      "Anglais": "ABCDEFGHIJKLMNOPRSTUVW"
+    }
+  }
+}

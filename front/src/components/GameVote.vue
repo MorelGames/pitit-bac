@@ -40,8 +40,15 @@
       >, qui a été plus rapide que les autres !
     </b-notification>
 
-    <b-notification type="is-dark" :active="true" :closable="false" v-if="categories.length === 0">
-      Il semblerait qu'aucun joueur n'ait répondu pendant cette manche… Il n'y a donc rien à voter. Cliquez sur « J'ai terminé » pour passer au prochain tour.
+    <b-notification
+      type="is-dark"
+      :active="true"
+      :closable="false"
+      v-if="categories.length === 0"
+    >
+      Il semblerait qu'aucun joueur n'ait répondu pendant cette manche… Il n'y a
+      donc rien à voter. Cliquez sur « J'ai terminé » pour passer au prochain
+      tour.
     </b-notification>
 
     <div class="all-answers">
@@ -101,7 +108,11 @@
                     </b-tooltip>
                   </li>
                   <li v-if="!answer.answer.valid">Proposition invalide</li>
-                  <li v-else-if="!answer_accepted(category, answer.author.uuid)">Refusé par la majorité</li>
+                  <li
+                    v-else-if="!answer_accepted(category, answer.author.uuid)"
+                  >
+                    Refusé par la majorité
+                  </li>
                 </ul>
               </div>
             </div>

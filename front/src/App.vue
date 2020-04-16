@@ -44,8 +44,12 @@
     <footer class="footer" :class="{ 'is-loading': !!loading }">
       <div class="content has-text-centered">
         <p>
-          <em>Pitit Bac</em> est réalisé par <a href="https://amaury.carrade.eu">Amaury Carrade</a>.
-          Cette application est <a href="https://github.com/AmauryCarrade/pitit-bac">à source ouverte, et publiée sous licence libre</a>.
+          <em>Pitit Bac</em> est réalisé par
+          <a href="https://amaury.carrade.eu">Amaury Carrade</a>. Cette
+          application est
+          <a href="https://github.com/AmauryCarrade/pitit-bac"
+            >à source ouverte, et publiée sous licence libre</a
+          >.
         </p>
       </div>
     </footer>

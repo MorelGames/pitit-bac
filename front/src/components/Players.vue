@@ -33,8 +33,17 @@
         >
         <span class="is-size-7 ourself-mark" v-if="player.ourself">(vous)</span>
       </div>
-      <div class="panel-icon-right master-icon" :class="{'is-current-master': player.master}" v-if="player.master || (we_are_master && player.online)" @click="switch_master(player.uuid)">
-        <b-tooltip :label="player.master ? 'Maître du jeu' : 'Passer maître du jeu'" position="is-bottom" type="is-light">
+      <div
+        class="panel-icon-right master-icon"
+        :class="{ 'is-current-master': player.master }"
+        v-if="player.master || (we_are_master && player.online)"
+        @click="switch_master(player.uuid)"
+      >
+        <b-tooltip
+          :label="player.master ? 'Maître du jeu' : 'Passer maître du jeu'"
+          position="is-bottom"
+          type="is-light"
+        >
           <b-icon pack="fas" icon="user-shield" size="is-small"></b-icon>
         </b-tooltip>
       </div>

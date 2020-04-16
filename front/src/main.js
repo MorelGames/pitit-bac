@@ -6,6 +6,8 @@ import {
   faCheck,
   faExclamationCircle,
   faChevronRight,
+  faCaretUp,
+  faCaretDown,
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
@@ -34,6 +36,8 @@ library.add(
   faCheck,
   faExclamationCircle,
   faChevronRight,
+  faCaretUp,
+  faCaretDown,
   faTimes,
   faHourglassHalf,
   faUserAltSlash,
@@ -82,7 +86,15 @@ const store = new Vuex.Store({
         ],
         stopOnFirstCompletion: true,
         turns: 4,
-        time: 400
+        time: 400,
+        alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        scores: {
+          valid: 10,
+          duplicate: 5,
+          invalid: 0,
+          refused: 0,
+          empty: 0
+        }
       },
 
       current_round: {

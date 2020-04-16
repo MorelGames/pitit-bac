@@ -1,10 +1,7 @@
 <template>
   <section class="share-game">
     <h3>Partager la partie</h3>
-    <b-field
-      grouped
-      size="is-small"
-    >
+    <b-field grouped size="is-small">
       <b-input
         :value="share_url"
         size="is-small"
@@ -16,14 +13,20 @@
       </b-input>
       <p class="control">
         <button class="button is-light" @click.stop.prevent="copy_url">
-          <b-tooltip :label="copied ? 'Copié !' : 'Copier dans le presse-papier'" position="is-bottom" type="is-light" multiline>
+          <b-tooltip
+            :label="copied ? 'Copié !' : 'Copier dans le presse-papier'"
+            position="is-bottom"
+            type="is-light"
+            multiline
+          >
             <b-icon pack="fas" icon="clipboard" size="is-small"></b-icon>
           </b-tooltip>
         </button>
       </p>
     </b-field>
     <p class="share-invite">
-      Invitez les autres joueurs à ouvrir cette adresse dans leur navigateur pour rejoindre cette partie.
+      Invitez les autres joueurs à ouvrir cette adresse dans leur navigateur
+      pour rejoindre cette partie.
     </p>
   </section>
 </template>
@@ -35,7 +38,7 @@ export default {
   data() {
     return {
       copied: false
-    }
+    };
   },
   computed: mapState({
     share_url(state) {
@@ -44,16 +47,15 @@ export default {
   }),
   methods: {
     copy_url() {
-      let share_url_field = document.getElementById('share-url-field');
+      let share_url_field = document.getElementById("share-url-field");
       share_url_field.select();
 
       try {
-        if (document.execCommand('copy')) {
+        if (document.execCommand("copy")) {
           this.copied = true;
-          setTimeout(() => this.copied = false, 1600);
+          setTimeout(() => (this.copied = false), 1600);
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.error("Unable to copy game URL", e);
       }
 
