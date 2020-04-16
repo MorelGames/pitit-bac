@@ -112,6 +112,12 @@ export class Game {
   random_letter() {
     let letter = "";
 
+    // For some reason, the alphabet is empty. To avoid an infinite loop,
+    // let's return the 4th letter (4 was selected using a fair dice roll).
+    if (this.configuration.alphabet.length === 0) {
+      return "D";
+    }
+
     if (this.used_letters.length == this.configuration.alphabet.length) {
       this.used_letters = [];
     }
@@ -306,27 +312,10 @@ export class Game {
       return;
     }
 
-    /*
-
-    alphabet: "ABCDEFGHIJLMNOPQRSTUV",
-    scores: {
-      // The answer is valid, accepted by the players, and is not duplicated.
-      valid: 10,
-
-      // Same as the above, but another player answered the same thing for this
-      // category.
-      duplicate: 5,
-
-      // The answer is invalid (does not start with the good letter).
-      invalid: 0,
-
-      // The answer is valid, but was refused by the other players.
-      refused: 0,
-
-      // The answer is empty.
-      empty: 0
+    let num_or_default = (n, def) => {
+      n = parseInt(n);
+      return isNaN(n) ? def : n;
     }
-    */
 
     // Else we update the internal configuration and send the update to everyone.
     this.configuration = {
@@ -336,13 +325,13 @@ export class Game {
       stopOnFirstCompletion: !!configuration.stopOnFirstCompletion,
       turns: Math.max(Math.abs(parseInt(configuration.turns) || 4), 1),
       time: Math.max(Math.abs(parseInt(configuration.time) || 400), 15),
-      alphabet: configuration.alphabet,
+      alphabet: configuration.alphabet || "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       scores: {
-        valid: parseInt(configuration.scores.valid) || 10,
-        duplicate: parseInt(configuration.scores.duplicate) || 5,
-        invalid: parseInt(configuration.scores.invalid) || 0,
-        refused: parseInt(configuration.scores.refused) || 0,
-        empty: parseInt(configuration.scores.empty) || 0,
+        valid: num_or_default(configuration.scores.valid, 10),
+        duplicate: num_or_default(configuration.scores.duplicate, 5),
+        invalid: num_or_default(configuration.scores.invalid, 0),
+        refused: num_or_default(configuration.scores.refused, 0),
+        empty: num_or_default(configuration.scores.empty, 0),
       }
     };
 

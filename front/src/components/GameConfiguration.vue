@@ -7,7 +7,7 @@
     >
       <section>
         <div class="columns">
-          <div class="column is-half">
+          <div class="column is-half is-column-with-start-button">
             <b-field
               label="Catégories à remplir"
               :message="
@@ -21,7 +21,7 @@
                   <div class="column is-8">
                     Catégories à remplir
                   </div>
-                  <div class="column is-4 suggestions-link" v-if="master">
+                  <div class="column is-4 suggestions-link">
                     <a href="#" class="suggestions-link-trigger" @click.prevent="toggle_suggestions_modale()"
                       >Suggestions</a
                     >
@@ -139,14 +139,24 @@
             <p class="modal-card-title">Suggestions de catégories</p>
           </header>
           <section class="modal-card-body">
-            <p>
-              Des idées de catégories sont suggérées ci-dessous. Vous pouvez
-              toujours entrer directement vos propres catégories — n'hésitez pas
-              si vous avez des idées originales ou des références privées !
-            </p>
-            <p>
-              Cliquez sur une catégorie pour l'ajouter ou la supprimer.
-            </p>
+            <div v-if="master">
+              <p>
+                Des idées de catégories sont suggérées ci-dessous. Vous pouvez
+                toujours entrer directement vos propres catégories — n'hésitez pas
+                si vous avez des idées originales ou des références privées !
+              </p>
+              <p>
+                Cliquez sur une catégorie pour l'ajouter ou la supprimer.
+              </p>
+            </div>
+            <div v-else>
+              <p>
+                Des idées de catégories sont suggérées ci-dessous. Le maître du jeu
+                peut toujours entrer directement vos propres catégories — n'hésitez
+                pas à lui demander si vous avez des idées originales ou des références
+                privées !
+              </p>
+            </div>
 
             <div
               class="tags"
@@ -155,7 +165,7 @@
             >
               <span
                 class="tag is-medium"
-                :class="{ 'is-primary': has_category(suggestion) }"
+                :class="{ 'is-primary': has_category(suggestion), 'is-static': !master }"
                 v-for="(suggestion, i) in categories_group"
                 :key="i"
                 @click="toggle_category(suggestion)"
@@ -187,7 +197,7 @@
             <template slot="label">
               <div class="columns is-mobile">
                 <div class="column is-half">
-                  Alphabet à utiliser
+                  Alphabet
                 </div>
                 <div class="column is-half suggestions-link" v-if="master">
                   <b-dropdown aria-role="list" position="is-bottom-left">
@@ -227,7 +237,7 @@
                 <div class="column is-half">
                   Scores
                 </div>
-                <div class="column is-half suggestions-link" v-if="master">
+                <div class="column is-half suggestions-link">
                   <b-dropdown aria-role="list" position="is-bottom-left">
                     <a
                         href=""
@@ -267,21 +277,21 @@
                 </div>
               </div>
             </template>
-            <div class="columns scores-columns is-mobile">
+            <div class="columns scores-columns is-mobile" :class="{'is-disabled': !master}">
               <b-field class="column" label="Valide">
-                <b-input type="number" v-model="config.scores.valid" @input="update_game_configuration" :disabled="!master"></b-input>
+                <b-input type="number" v-model="config.scores.valid" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
               <b-field class="column" label="Dupliquée">
-                <b-input type="number" v-model="config.scores.duplicate" @input="update_game_configuration" :disabled="!master"></b-input>
+                <b-input type="number" v-model="config.scores.duplicate" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
               <b-field class="column" label="Invalide">
-                <b-input type="number" v-model="config.scores.invalid" @input="update_game_configuration" :disabled="!master"></b-input>
+                <b-input type="number" v-model="config.scores.invalid" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
               <b-field class="column" label="Refusée">
-                <b-input type="number" v-model="config.scores.refused" @input="update_game_configuration" :disabled="!master"></b-input>
+                <b-input type="number" v-model="config.scores.refused" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
               <b-field class="column" label="Vide">
-                <b-input type="number" v-model="config.scores.empty" @input="update_game_configuration" :disabled="!master"></b-input>
+                <b-input type="number" v-model="config.scores.empty" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
             </div>
           </b-field>
@@ -325,7 +335,7 @@ export default {
         : this.format_seconds(this.config.time, true, true);
     },
     can_start() {
-      return this.has_categories && this.has_players;
+      return this.has_categories && this.has_players && this.required_fields_filled;
     },
     has_players() {
       return Object.values(this.$store.state.players).length > 1;
@@ -333,12 +343,22 @@ export default {
     has_categories() {
       return this.$store.state.game.configuration.categories.length !== 0;
     },
+    required_fields_filled() {
+      return this.config.alphabet
+          && this.config.scores.valid !== "" && this.config.scores.valid !== undefined
+          && this.config.scores.duplicate !== "" && this.config.scores.duplicate !== undefined
+          && this.config.scores.invalid !== "" && this.config.scores.invalid !== undefined
+          && this.config.scores.refused !== "" && this.config.scores.refused !== undefined
+          && this.config.scores.empty !== "" && this.config.scores.empty !== undefined
+    },
     start_button_tooltip() {
       if (this.master) {
         if (!this.has_players)
           return "Il n'y a que vous ! Invitez d'autres joueurs à vous rejoindre avec le lien ci-contre…";
         else if (!this.has_categories)
           return "Vous ne pouvez pas démarrer le jeu sans aucune catégorie.";
+        else if (!this.required_fields_filled)
+          return "Certains champs ne sont pas correctement remplis."
         else return "";
       } else {
         return "Veuillez patienter — le maître du jeu va lancer la partie…";
@@ -359,7 +379,14 @@ export default {
         : `${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
     },
 
-    update_game_configuration() {
+    update_game_configuration(edited_value) {
+      // If the edited value is given and empty, we don't trigger an update, so
+      // the user _can_ empty the field to type a new value. Used for text &
+      // number fields that are updated for every keystroke.
+      if (edited_value !== undefined && typeof edited_value !== "boolean" && !edited_value) {
+        return;
+      }
+
       // We update the configuration on the next tick; else, when we click on a slider
       // directly on another point (without dragging the cursor), the value sent to
       // the server is the value before the update, and the configuration update
@@ -387,6 +414,8 @@ export default {
     },
 
     toggle_category(category) {
+      if (!this.master) return;
+
       let index = this.config.categories.indexOf(category);
       if (index === -1) {
         this.config.categories.push(category);
@@ -436,43 +465,12 @@ label.switch span.control-label
 div.column.is-half div.field:not(:first-child):not(.no-extended-margin-top)
   margin-top: 3rem
 
-div.taginput.control .taginput-container[disabled]
-  // TODO use variable for these
-  background-color: #f8fef6
-  border-color: #f8fef6
-
-  cursor: default
-
-  .tag
-    .delete
-      display: none
-
-  .autocomplete.control
-    display: none
-
-input.input[disabled]
-  background: transparent
-  border: none
-  padding: 0
-  color: $grey-dark
-  cursor: default
-
 div.field > span.b-tooltip
   display: inline-block
   width: 100%
 
   &.is-multiline:after
     width: 360px !important
-
-label.label .suggestions-link
-  text-align: right
-  font-weight: normal !important
-
-  a.suggestions-link-trigger
-    color: $primary-dark !important
-
-    cursor: pointer
-    text-decoration: none !important
 
 .is-date-desktop
   +mobile
@@ -481,11 +479,64 @@ label.label .suggestions-link
   +tablet
     display: none
 
-.b-slider.has-lots-of-ticks
-  +mobile
-    .b-slider-track
-      .b-slider-tick:nth-of-type(2n)
+.game-configuration
+  label.label .suggestions-link
+    text-align: right
+    font-weight: normal !important
+
+    a.suggestions-link-trigger
+      color: $primary-dark !important
+
+      cursor: pointer
+      text-decoration: none !important
+
+  input.input[disabled]
+    background: transparent
+    border: none
+    padding: 0
+    color: $grey-dark
+    cursor: default
+
+  div.taginput.control .taginput-container[disabled]
+    position: relative
+    left: -2px
+
+    // TODO use variable for these
+    background-color: #f8fef6
+    border-color: #f8fef6
+
+    cursor: default
+
+    .tag
+      .delete
         display: none
+
+    .autocomplete.control
+      display: none
+
+  .b-slider
+    &.has-lots-of-ticks
+      +mobile
+        .b-slider-track
+          .b-slider-tick:nth-of-type(2n)
+            display: none
+
+    &.is-disabled
+      .b-slider-track
+        opacity: 1 !important
+        cursor: default !important
+        .b-slider-tick
+          background: transparent
+
+      .b-slider-thumb-wrapper
+        display: none
+
+  .switch[disabled]
+    opacity: 1 !important
+
+    .control-label
+      color: $dark
+      cursor: default
 
 div.modal-card.suggestions-card
   width: auto
@@ -507,13 +558,23 @@ div.modal-card.suggestions-card
   div.tags
     margin-top: 1.5rem
 
-    .tag
+    .tag:not(.is-static)
       cursor: pointer
 
       &:hover
         background-color: $grey-lighter
         &.is-primary
           background-color: $primary-dark
+
+    .tag.is-static
+      cursor: default
+
+div.column.is-column-with-start-button
+  display: flex
+  flex-direction: column
+
+  .field:not(.start-button)
+    flex: 4
 
 .avanced-section-toggle
   margin-bottom: 1.5rem
@@ -585,10 +646,25 @@ div.modal-card.suggestions-card
             padding-top: .4rem
             padding-left: .1em
             font-weight: normal
+
           input[disabled]
             -moz-appearance: textfield
 
             &:-webkit-outer-spin-button, &:-webkit-inner-spin-button
               -webkit-appearance: none
               margin: 0
+
+        &.is-disabled
+          +mobile
+            margin-top: .4rem
+
+          .field.column
+            flex-direction: column
+
+            label
+              padding-top: 0
+              padding-left: 0
+
+            div.control
+              flex: 4
 </style>
