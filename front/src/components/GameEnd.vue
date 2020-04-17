@@ -163,7 +163,6 @@ export default {
     },
     nth_winners_points(n) {
       let nth_scores = this.scores.filter(score => score.rank === n);
-      console.log(nth_scores, this.scores, "yes");
       if (nth_scores && nth_scores.length > 0) {
         let points = nth_scores[0].score;
         return points + " point" + (points > 1 ? "s" : "");
