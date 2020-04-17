@@ -42,7 +42,7 @@ export default class GameServer {
         "config": {
           "graph_title": "Running games",
           "graph_info": "A view on currently running games and players.",
-          "graph_vlabel": "Amount",
+          "graph_vlabel": "Games",
           "graph_category": "pitit_bac"
         },
         "data": {
@@ -54,15 +54,23 @@ export default class GameServer {
           },
           "active_games": {
             "label": "Active games",
-            "value": () => Object.values(this.running_games).filter(game => game.state !== "CONFIG").length
-          },
-          "dying_games": {
-            "label": "Dying games",
-            "value": () => Object.values(this.running_games).filter(game => game.pending_deletion_task !== null).length
-          },
+            "value": () => Object.values(this.running_games).filter(game => game.state !== "CONFIG" && game.pending_deletion_task === null).length
+          }
+        }
+      });
+
+      this.munin.add_source("clients", {
+        "config": {
+          "graph_title": "Connected clients",
+          "graph_info": "Number of players with an active connection to the websockets server.",
+          "graph_vlabel": "Clients",
+          "graph_category": "pitit_bac"
+        },
+        "data": {
           "clients": {
             "label": "Connected clients",
-            "warning": "1000",
+            "warning": 1000,
+            "critical": 1024,
             "value": () => Object.keys(this.clients).length
           }
         }
@@ -71,7 +79,7 @@ export default class GameServer {
       this.munin.add_source("all_games", {
         "config": {
           "graph_title": "All games",
-          "graph_info": "Number of games and game players since the beginning.",
+          "graph_info": "Number of games and players since the beginning.",
           "graph_vlabel": "Amount",
           "graph_category": "pitit_bac"
         },
