@@ -116,9 +116,9 @@ export default {
 @import "~bulma"
 @import "~buefy/src/scss/buefy"
 
-body
+html, body
+  overflow-y: auto
   min-height: 100vh
-  overflow-x: hidden
 
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
