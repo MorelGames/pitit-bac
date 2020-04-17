@@ -20,7 +20,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import Buefy from "buefy";
 import { SnackbarProgrammatic as Snackbar } from "buefy";
-import { DialogProgrammatic as Dialog } from 'buefy'
+import { DialogProgrammatic as Dialog } from "buefy";
 import "buefy/dist/buefy.css";
 
 import GameClient from "./game";
@@ -306,17 +306,20 @@ const store = new Vuex.Store({
           iconPack: "fas",
           icon: "person-booth",
           onConfirm: () => document.location.reload(),
-          onCancel: () => document.location.hash = slug
+          onCancel: () => (document.location.hash = slug)
         });
-      }
-      else {
+      } else {
         context.dispatch("set_game_slug", slug);
       }
     },
 
     set_game_slug(context, slug) {
       // If the player was connected to a different game than asked
-      if (context.state.game.slug && slug !== context.state.game.slug && context.state.game_state === "CONFIG") {
+      if (
+        context.state.game.slug &&
+        slug !== context.state.game.slug &&
+        context.state.game_state === "CONFIG"
+      ) {
         Snackbar.open({
           message: `Vous avez demandé à rejoindre une partie, mais celle-ci n'existait pas. Nous en avons créé une nouvelle pour vous.`,
           queue: false,

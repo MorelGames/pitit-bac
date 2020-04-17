@@ -120,6 +120,9 @@ html, body
   overflow-y: auto
   min-height: 100vh
 
+  +mobile
+    overflow-x: hidden
+
 html.overflow, html.overflow body
   overflow-y: unset
 

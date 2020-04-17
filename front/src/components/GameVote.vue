@@ -131,7 +131,11 @@
       </article>
     </div>
 
-    <b-notification :active="true" :closable="false" class="mobile-bottom-submit-button">
+    <b-notification
+      :active="true"
+      :closable="false"
+      class="mobile-bottom-submit-button"
+    >
       <div class="field">
         <b-button
           type="is-primary is-medium"

@@ -22,7 +22,10 @@
                     Catégories à remplir
                   </div>
                   <div class="column is-4 suggestions-link">
-                    <a href="#" class="suggestions-link-trigger" @click.prevent="toggle_suggestions_modale()"
+                    <a
+                      href="#"
+                      class="suggestions-link-trigger"
+                      @click.prevent="toggle_suggestions_modale()"
                       >Suggestions</a
                     >
                   </div>
@@ -73,7 +76,9 @@
                 @change="update_game_configuration"
               >
                 <template v-for="val in [2, 4, 6, 8, 10, 12, 14, 16, 18]">
-                  <b-slider-tick :value="val" :key="val">{{ val }}</b-slider-tick>
+                  <b-slider-tick :value="val" :key="val">{{
+                    val
+                  }}</b-slider-tick>
                 </template>
               </b-slider>
             </b-field>
@@ -102,7 +107,9 @@
                     format_seconds(val)
                   }}</b-slider-tick>
                 </template>
-                <b-slider-tick :value="infinite_duration">&infin;</b-slider-tick>
+                <b-slider-tick :value="infinite_duration"
+                  >&infin;</b-slider-tick
+                >
               </b-slider>
             </b-field>
             <div class="field">
@@ -111,7 +118,7 @@
                 v-model="config.stopOnFirstCompletion"
                 @input="update_game_configuration"
               >
-                Arrêter chaque tour lorsque que quelqu'un a terminé
+                Arrêter chaque tour lorsque quelqu'un a terminé
               </b-switch>
             </div>
           </div>
@@ -119,7 +126,11 @@
       </section>
 
       <div class="field start-button is-mobile">
-        <b-tooltip multilined position="is-bottom" :label="start_button_tooltip">
+        <b-tooltip
+          multilined
+          position="is-bottom"
+          :label="start_button_tooltip"
+        >
           <b-button
             type="is-primary is-medium"
             expanded
@@ -142,8 +153,9 @@
             <div v-if="master">
               <p>
                 Des idées de catégories sont suggérées ci-dessous. Vous pouvez
-                toujours entrer directement vos propres catégories — n'hésitez pas
-                si vous avez des idées originales ou des références privées !
+                toujours entrer directement vos propres catégories — n'hésitez
+                pas si vous avez des idées originales ou des références
+                privées !
               </p>
               <p>
                 Cliquez sur une catégorie pour l'ajouter ou la supprimer.
@@ -151,10 +163,10 @@
             </div>
             <div v-else>
               <p>
-                Des idées de catégories sont suggérées ci-dessous. Le maître du jeu
-                peut toujours entrer directement vos propres catégories — n'hésitez
-                pas à lui demander si vous avez des idées originales ou des références
-                privées !
+                Des idées de catégories sont suggérées ci-dessous. Le maître du
+                jeu peut toujours entrer directement vos propres catégories —
+                n'hésitez pas à lui demander si vous avez des idées originales
+                ou des références privées !
               </p>
             </div>
 
@@ -165,7 +177,10 @@
             >
               <span
                 class="tag is-medium"
-                :class="{ 'is-primary': has_category(suggestion), 'is-static': !master }"
+                :class="{
+                  'is-primary': has_category(suggestion),
+                  'is-static': !master
+                }"
                 v-for="(suggestion, i) in categories_group"
                 :key="i"
                 @click="toggle_category(suggestion)"
@@ -186,14 +201,21 @@
       </b-modal>
     </b-message>
 
-    <div class="avanced-section-toggle" :class="{'is-active': show_advanced}" @click="show_advanced = !show_advanced">
-      Paramètres avancés <b-icon :icon="show_advanced ? 'caret-up' : 'caret-down'"></b-icon>
+    <div
+      class="avanced-section-toggle"
+      :class="{ 'is-active': show_advanced }"
+      @click="show_advanced = !show_advanced"
+    >
+      Paramètres avancés
+      <b-icon :icon="show_advanced ? 'caret-up' : 'caret-down'"></b-icon>
     </div>
 
     <b-message v-show="show_advanced" type="is-primary" class="avanced-section">
       <div class="columns">
         <div class="column is-half">
-          <b-field message="La lettre de chaque tour sera extraite au hasard de ces lettres.">
+          <b-field
+            message="La lettre de chaque tour sera extraite au hasard de ces lettres."
+          >
             <template slot="label">
               <div class="columns is-mobile">
                 <div class="column is-half">
@@ -202,32 +224,69 @@
                 <div class="column is-half suggestions-link" v-if="master">
                   <b-dropdown aria-role="list" position="is-bottom-left">
                     <a
-                        href=""
-                        @click.prevent=""
-                        class="suggestions-link-trigger"
-                        slot="trigger"
-                        role="button">
-                        Pré-sélections <b-icon icon="caret-down" size="is-small"></b-icon>
+                      href=""
+                      @click.prevent=""
+                      class="suggestions-link-trigger"
+                      slot="trigger"
+                      role="button"
+                    >
+                      Pré-sélections
+                      <b-icon icon="caret-down" size="is-small"></b-icon>
                     </a>
 
-                    <div v-for="(alphabets_cat, i) in Object.keys(alphabets)" :key="i">
-                      <b-dropdown-item separator v-if="i != 0"></b-dropdown-item>
+                    <div
+                      v-for="(alphabets_cat, i) in Object.keys(alphabets)"
+                      :key="i"
+                    >
+                      <b-dropdown-item
+                        separator
+                        v-if="i != 0"
+                      ></b-dropdown-item>
                       <div class="dropdown-item">
                         <h4>{{ alphabets_cat }}</h4>
                         <p>{{ alphabets[alphabets_cat].description }}</p>
                       </div>
-                      <b-dropdown-item aria-role="listitem" :class="{'is-active': config.alphabet === alphabets[alphabets_cat].alphabets[alphabet_in_cat]}" @click="config.alphabet = alphabets[alphabets_cat].alphabets[alphabet_in_cat]; update_game_configuration()" v-for="(alphabet_in_cat, j) in Object.keys(alphabets[alphabets_cat].alphabets)" :key="j">{{ alphabet_in_cat }}</b-dropdown-item>
+                      <b-dropdown-item
+                        aria-role="listitem"
+                        :class="{
+                          'is-active':
+                            config.alphabet ===
+                            alphabets[alphabets_cat].alphabets[alphabet_in_cat]
+                        }"
+                        @click="
+                          config.alphabet =
+                            alphabets[alphabets_cat].alphabets[alphabet_in_cat];
+                          update_game_configuration();
+                        "
+                        v-for="(alphabet_in_cat, j) in Object.keys(
+                          alphabets[alphabets_cat].alphabets
+                        )"
+                        :key="j"
+                        >{{ alphabet_in_cat }}</b-dropdown-item
+                      >
                     </div>
 
                     <b-dropdown-item separator></b-dropdown-item>
                     <div class="dropdown-item">
-                      <p>Votre langue ou alphabet manque à la liste ? <a href="https://github.com/AmauryCarrade/pitit-bac/issues" target="_blank">Dites-nous comment l'ajouter !</a></p>
+                      <p>
+                        Votre langue ou alphabet manque à la liste ?
+                        <a
+                          href="https://github.com/AmauryCarrade/pitit-bac/issues"
+                          target="_blank"
+                          >Dites-nous comment l'ajouter !</a
+                        >
+                      </p>
                     </div>
-                </b-dropdown>
+                  </b-dropdown>
                 </div>
               </div>
             </template>
-            <b-input type="text" v-model="config.alphabet" @blur="update_game_configuration" :disabled="!master"></b-input>
+            <b-input
+              type="text"
+              v-model="config.alphabet"
+              @blur="update_game_configuration"
+              :disabled="!master"
+            ></b-input>
           </b-field>
         </div>
         <div class="column is-half">
@@ -240,30 +299,46 @@
                 <div class="column is-half suggestions-link">
                   <b-dropdown aria-role="list" position="is-bottom-left">
                     <a
-                        href=""
-                        @click.prevent=""
-                        class="suggestions-link-trigger"
-                        slot="trigger"
-                        role="button">
-                        Explications <b-icon icon="caret-down" size="is-small"></b-icon>
+                      href=""
+                      @click.prevent=""
+                      class="suggestions-link-trigger"
+                      slot="trigger"
+                      role="button"
+                    >
+                      Explications
+                      <b-icon icon="caret-down" size="is-small"></b-icon>
                     </a>
 
                     <div class="dropdown-item">
                       <h4>Valide</h4>
-                      <p>Points attribués si la réponse est correcte, acceptée par tous, et unique.</p>
+                      <p>
+                        Points attribués si la réponse est correcte, acceptée
+                        par tous, et unique.
+                      </p>
                     </div>
                     <div class="dropdown-item">
                       <h4>Dupliquée</h4>
-                      <p>Points attribués si la réponse est correcte, acceptée par tous, mais que plusieurs personne ont répondu la même chose.</p>
+                      <p>
+                        Points attribués si la réponse est correcte, acceptée
+                        par tous, mais que plusieurs personne ont répondu la
+                        même chose.
+                      </p>
                     </div>
                     <b-dropdown-item separator></b-dropdown-item>
                     <div class="dropdown-item">
                       <h4>Invalide</h4>
-                      <p>Points attribués si la réponse n'est pas correcte (elle ne commence pas par la bonne lettre).</p>
+                      <p>
+                        Points attribués si la réponse n'est pas correcte (elle
+                        ne commence pas par la bonne lettre).
+                      </p>
                     </div>
                     <div class="dropdown-item">
                       <h4>Refusée</h4>
-                      <p>Points attribués si la réponse commence par la bonne lettre, mais est refusée par la majorité des participants.</p>
+                      <p>
+                        Points attribués si la réponse commence par la bonne
+                        lettre, mais est refusée par la majorité des
+                        participants.
+                      </p>
                     </div>
                     <div class="dropdown-item">
                       <h4>Vide</h4>
@@ -271,27 +346,58 @@
                     </div>
                     <b-dropdown-item separator></b-dropdown-item>
                     <div class="dropdown-item">
-                      <p>Les scores peuvent être négatifs (les points sont alors retirés du score du joueur).</p>
+                      <p>
+                        Les scores peuvent être négatifs (les points sont alors
+                        retirés du score du joueur).
+                      </p>
                     </div>
-                </b-dropdown>
+                  </b-dropdown>
                 </div>
               </div>
             </template>
-            <div class="columns scores-columns is-mobile is-multiline" :class="{'is-disabled': !master}">
+            <div
+              class="columns scores-columns is-mobile is-multiline"
+              :class="{ 'is-disabled': !master }"
+            >
               <b-field class="column" label="Valide">
-                <b-input type="number" v-model="config.scores.valid" @input="update_game_configuration($event)" :disabled="!master"></b-input>
+                <b-input
+                  type="number"
+                  v-model="config.scores.valid"
+                  @input="update_game_configuration($event)"
+                  :disabled="!master"
+                ></b-input>
               </b-field>
               <b-field class="column" label="Dupliquée">
-                <b-input type="number" v-model="config.scores.duplicate" @input="update_game_configuration($event)" :disabled="!master"></b-input>
+                <b-input
+                  type="number"
+                  v-model="config.scores.duplicate"
+                  @input="update_game_configuration($event)"
+                  :disabled="!master"
+                ></b-input>
               </b-field>
               <b-field class="column" label="Invalide">
-                <b-input type="number" v-model="config.scores.invalid" @input="update_game_configuration($event)" :disabled="!master"></b-input>
+                <b-input
+                  type="number"
+                  v-model="config.scores.invalid"
+                  @input="update_game_configuration($event)"
+                  :disabled="!master"
+                ></b-input>
               </b-field>
               <b-field class="column" label="Refusée">
-                <b-input type="number" v-model="config.scores.refused" @input="update_game_configuration($event)" :disabled="!master"></b-input>
+                <b-input
+                  type="number"
+                  v-model="config.scores.refused"
+                  @input="update_game_configuration($event)"
+                  :disabled="!master"
+                ></b-input>
               </b-field>
               <b-field class="column" label="Vide">
-                <b-input type="number" v-model="config.scores.empty" @input="update_game_configuration($event)" :disabled="!master"></b-input>
+                <b-input
+                  type="number"
+                  v-model="config.scores.empty"
+                  @input="update_game_configuration($event)"
+                  :disabled="!master"
+                ></b-input>
               </b-field>
             </div>
           </b-field>
@@ -335,7 +441,9 @@ export default {
         : this.format_seconds(this.config.time, true, true);
     },
     can_start() {
-      return this.has_categories && this.has_players && this.required_fields_filled;
+      return (
+        this.has_categories && this.has_players && this.required_fields_filled
+      );
     },
     has_players() {
       return Object.values(this.$store.state.players).length > 1;
@@ -344,12 +452,19 @@ export default {
       return this.$store.state.game.configuration.categories.length !== 0;
     },
     required_fields_filled() {
-      return this.config.alphabet
-          && this.config.scores.valid !== "" && this.config.scores.valid !== undefined
-          && this.config.scores.duplicate !== "" && this.config.scores.duplicate !== undefined
-          && this.config.scores.invalid !== "" && this.config.scores.invalid !== undefined
-          && this.config.scores.refused !== "" && this.config.scores.refused !== undefined
-          && this.config.scores.empty !== "" && this.config.scores.empty !== undefined
+      return (
+        this.config.alphabet &&
+        this.config.scores.valid !== "" &&
+        this.config.scores.valid !== undefined &&
+        this.config.scores.duplicate !== "" &&
+        this.config.scores.duplicate !== undefined &&
+        this.config.scores.invalid !== "" &&
+        this.config.scores.invalid !== undefined &&
+        this.config.scores.refused !== "" &&
+        this.config.scores.refused !== undefined &&
+        this.config.scores.empty !== "" &&
+        this.config.scores.empty !== undefined
+      );
     },
     start_button_tooltip() {
       if (this.master) {
@@ -358,7 +473,7 @@ export default {
         else if (!this.has_categories)
           return "Vous ne pouvez pas démarrer le jeu sans aucune catégorie.";
         else if (!this.required_fields_filled)
-          return "Certains champs ne sont pas correctement remplis."
+          return "Certains champs ne sont pas correctement remplis.";
         else return "";
       } else {
         return "Veuillez patienter — le maître du jeu va lancer la partie…";
@@ -383,7 +498,11 @@ export default {
       // If the edited value is given and empty, we don't trigger an update, so
       // the user _can_ empty the field to type a new value. Used for text &
       // number fields that are updated for every keystroke.
-      if (edited_value !== undefined && typeof edited_value !== "boolean" && !edited_value) {
+      if (
+        edited_value !== undefined &&
+        typeof edited_value !== "boolean" &&
+        !edited_value
+      ) {
         return;
       }
 

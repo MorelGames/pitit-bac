@@ -10,8 +10,25 @@
   "Alphabets simplifiés": {
     "description": "Les alphabets de différentes langues, mais sans les lettres les plus rares.",
     "alphabets": {
+      "Allemand": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "Anglais": "ABCDEFGHIKLMNOPRSTUVW",
+      "Breton": "ABCDEFGHIKLMNOPRSTVY",
+      "Danois": "ABCDEFGHIJKLMNOPRSTUV",
+      "Espagnol": "ABCDEFGHIJLMNOPRSTV",
+      "Esperanto": "ABCDEFGHIJKLMNOPRSTUV",
+      "Finois": "ABDEFHIJKLMNOPRSTUVY",
       "Français": "ABCDEFGHIJLMNOPQRSTUV",
-      "Anglais": "ABCDEFGHIJKLMNOPRSTUVW"
+      "Grec": "\u0386\u0391\u0392\u0393\u0394\u0395\u0398\u0399\u039a\u039b\u039c\u039d\u039f\u03a0\u03a1\u03a3\u03a4\u03a5\u03a6\u03a7",
+      "Icelandais": "ABDEFGHJKLMNOPRSTUV\u00c1\u00d3\u00de",
+      "Italien": "ABCDEFGILMNOPRSTUV",
+      "Latin": "ABCDEFGHILMNOPRSTUV",
+      "Néerlandais": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "Norvégien": "ABDEFGHIJKLMNOPRSTUV",
+      "Occitan": "ABCDEFGIJLMNOPRSTUV",
+      "Polonais": "ABCDEFGHIJKLMNOPRSTUWZ",
+      "Portuguais": "ABCDEFGHILMNOPRSTV",
+      "Russe": "\u0410\u0411\u0412\u0413\u0414\u0417\u0418\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0427\u0428\u042d",
+      "Suédois": "ABCDEFGHIJKLMNOPRSTUV\u00d6"
     }
   }
 }

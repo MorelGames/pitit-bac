@@ -6,6 +6,7 @@ It uses VueJS and Buefy for the (static) front-end, and a Node websocket server 
 
 No account required: go to [the homepage, **bac.carrade.eu**](https://bac.carrade.eu), enter your pseudonym, and play!
 
+
 ## Project folders
 
 ### `commons`
@@ -19,6 +20,7 @@ Contains the backend websocket server, handling games logic and synchronization.
 ### `front`
 
 Contains the JS frontend the users use to play the game.
+
 
 ## Development installation
 
@@ -64,6 +66,7 @@ To lint the front-end code, use:
 $ make lint-front
 ```
 
+
 ## Production deployment
 
 Same as for the development, install all dependencies:
@@ -95,3 +98,10 @@ To update, re-build the front and restart the systemd service.
 ### Munin
 
 Some metrics are exposed under `/munin/running_games` and `/munin/all_games`. Check out the README of the [munin-http](munin/README.md) module for documentation on how to install these into a Munin node.
+
+
+## References
+
+To generate [filtered alphabets](front/data/alphabets.json) with frequent letters only, we used [a dataset containing words from the English Wiktionary and their languages](https://zenodo.org/record/1286991) built by Tiago Tresoldi.
+
+> Tiago Tresoldi, "Extracting translation data from the Wiktionary project," in _Computer-Assisted Language Comparison in Practice_, 11/06/2018, https://calc.hypotheses.org/?p=32.
