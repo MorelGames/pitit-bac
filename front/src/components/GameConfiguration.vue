@@ -319,7 +319,6 @@ export default {
     ...mapState({
       master: state => state.master,
       infinite_duration: state => state.game.infinite_duration,
-      suggested_categories: state => state.game.suggested_categories,
       config: state => state.game.configuration
     }),
     flat_suggested_categories() {

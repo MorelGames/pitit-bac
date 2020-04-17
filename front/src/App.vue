@@ -120,6 +120,9 @@ html, body
   overflow-y: auto
   min-height: 100vh
 
+html.overflow, html.overflow body
+  overflow-y: unset
+
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased

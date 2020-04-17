@@ -130,6 +130,20 @@
         </div>
       </article>
     </div>
+
+    <b-notification :active="true" :closable="false" class="mobile-bottom-submit-button">
+      <div class="field">
+        <b-button
+          type="is-primary is-medium"
+          expanded
+          :disabled="ready"
+          @click.once="vote_ready"
+        >
+          <span v-if="ready">Patientez…</span>
+          <span v-else>J'ai terminé !</span>
+        </b-button>
+      </div>
+    </b-notification>
   </section>
 </template>
 
@@ -218,6 +232,18 @@ export default {
     search_url(category, text) {
       return this.search_engine.replace("{s}", category + " " + text);
     }
+  },
+
+  mounted() {
+    // For the position: sticky to work, there must not be ANY overflow: hidden
+    // in all parents of the sticky element, up to `<html>`. We do have a
+    // overflow: hidden on `<html>` and `<body>`; this disables the CSS rule
+    // for this screen only, so the sticky banner actually sticks.
+    document.getElementsByTagName("html")[0].classList.add("overflow");
+  },
+
+  beforeDestroy() {
+    document.getElementsByTagName("html")[0].classList.remove("overflow");
   }
 };
 </script>
@@ -233,6 +259,7 @@ export default {
 
   +mobile
     border-radius: 0
+    position: relative !important
 
   .media-content
     overflow: hidden
@@ -256,6 +283,10 @@ export default {
   article.category-answers
     width: 99%
     text-align: left
+
+    +mobile
+      width: 100%
+      border-radius: 0
 
     // Avoids long answers to overflow
     .level-left
@@ -305,4 +336,10 @@ export default {
         align-items: center
 
         margin-top: .4rem
+
+.notification.mobile-bottom-submit-button
+  +tablet
+    display: none
+
+  margin-top: 1.5rem
 </style>
