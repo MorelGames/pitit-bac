@@ -286,6 +286,16 @@ const store = new Vuex.Store({
     },
 
     set_game_slug(context, slug) {
+      // If the player was connected to a different game than asked
+      if (context.state.game.slug && slug !== context.state.game.slug && context.state.game_state === "CONFIG") {
+        Snackbar.open({
+          message: `Vous avez demandé à rejoindre une partie, mais celle-ci n'existait pas. Nous en avons créé une nouvelle pour vous.`,
+          queue: false,
+          actionText: null,
+          duration: 5000
+        });
+      }
+
       context.commit("set_game_slug", slug);
       document.location.hash = slug;
     },
