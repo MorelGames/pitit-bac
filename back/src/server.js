@@ -27,16 +27,12 @@ export default class GameServer {
 
         this.setup_munin();
 
-        this.suggested_categories = require("../data/categories.json");
-
         try {
           this.statistics = require("../data/statistics.json")
         }
         catch (e) {
           this.statistics = {};
         }
-
-        log_info(`Loaded ${Array.prototype.concat.apply([], this.suggested_categories).length} suggested categories.`);
     }
 
     setup_munin() {

@@ -212,17 +212,17 @@
 
                     <div v-for="(alphabets_cat, i) in Object.keys(alphabets)" :key="i">
                       <b-dropdown-item separator v-if="i != 0"></b-dropdown-item>
-                      <b-dropdown-item :custom="true" @click="this.blur()">
+                      <div class="dropdown-item">
                         <h4>{{ alphabets_cat }}</h4>
                         <p>{{ alphabets[alphabets_cat].description }}</p>
-                      </b-dropdown-item>
+                      </div>
                       <b-dropdown-item aria-role="listitem" :class="{'is-active': config.alphabet === alphabets[alphabets_cat].alphabets[alphabet_in_cat]}" @click="config.alphabet = alphabets[alphabets_cat].alphabets[alphabet_in_cat]; update_game_configuration()" v-for="(alphabet_in_cat, j) in Object.keys(alphabets[alphabets_cat].alphabets)" :key="j">{{ alphabet_in_cat }}</b-dropdown-item>
                     </div>
 
                     <b-dropdown-item separator></b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    <div class="dropdown-item">
                       <p>Votre langue ou alphabet manque à la liste ? <a href="https://github.com/AmauryCarrade/pitit-bac/issues" target="_blank">Dites-nous comment l'ajouter !</a></p>
-                    </b-dropdown-item>
+                    </div>
                 </b-dropdown>
                 </div>
               </div>
@@ -248,36 +248,36 @@
                         Explications <b-icon icon="caret-down" size="is-small"></b-icon>
                     </a>
 
-                    <b-dropdown-item :custom="true">
+                    <div class="dropdown-item">
                       <h4>Valide</h4>
                       <p>Points attribués si la réponse est correcte, acceptée par tous, et unique.</p>
-                    </b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    </div>
+                    <div class="dropdown-item">
                       <h4>Dupliquée</h4>
                       <p>Points attribués si la réponse est correcte, acceptée par tous, mais que plusieurs personne ont répondu la même chose.</p>
-                    </b-dropdown-item>
+                    </div>
                     <b-dropdown-item separator></b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    <div class="dropdown-item">
                       <h4>Invalide</h4>
                       <p>Points attribués si la réponse n'est pas correcte (elle ne commence pas par la bonne lettre).</p>
-                    </b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    </div>
+                    <div class="dropdown-item">
                       <h4>Refusée</h4>
                       <p>Points attribués si la réponse commence par la bonne lettre, mais est refusée par la majorité des participants.</p>
-                    </b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    </div>
+                    <div class="dropdown-item">
                       <h4>Vide</h4>
                       <p>Points attribués si la réponse est manquante.</p>
-                    </b-dropdown-item>
+                    </div>
                     <b-dropdown-item separator></b-dropdown-item>
-                    <b-dropdown-item :custom="true">
+                    <div class="dropdown-item">
                       <p>Les scores peuvent être négatifs (les points sont alors retirés du score du joueur).</p>
-                    </b-dropdown-item>
+                    </div>
                 </b-dropdown>
                 </div>
               </div>
             </template>
-            <div class="columns scores-columns is-mobile" :class="{'is-disabled': !master}">
+            <div class="columns scores-columns is-mobile is-multiline" :class="{'is-disabled': !master}">
               <b-field class="column" label="Valide">
                 <b-input type="number" v-model="config.scores.valid" @input="update_game_configuration($event)" :disabled="!master"></b-input>
               </b-field>
@@ -311,7 +311,8 @@ export default {
       filtered_suggestions: [],
       suggestions_opened: false,
       show_advanced: false,
-      alphabets: require("../../data/alphabets.json")
+      alphabets: require("../../data/alphabets.json"),
+      suggested_categories: require("../../data/categories.json")
     };
   },
   computed: {
@@ -618,7 +619,7 @@ div.column.is-column-with-start-button
             color: $grey-dark
             font-size: 1.1em
             font-variant: all-small-caps
-            letter-spacing: 0.02em
+            letter-spacing: 1px
           p
             color: $grey
             font-size: .9em
@@ -627,7 +628,13 @@ div.column.is-column-with-start-button
             color: $grey-dark
             text-decoration: none
 
+          &:last-child
+            margin-bottom: 0
+
     .scores-master-field
+      +mobile
+        margin-top: 1rem
+
       label.label
         margin-bottom: 0
 
