@@ -36,6 +36,7 @@
                 :data="filtered_suggestions"
                 autocomplete
                 allow-new
+                :confirm-key-codes="[13, 9]"
                 @input="update_game_configuration"
                 @typing="update_suggestions"
                 placeholder="Ajouter une catégorie…"
