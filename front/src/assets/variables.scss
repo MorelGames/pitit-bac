@@ -17,6 +17,9 @@ $less-dark-invert: findColorInvert($less-dark);
 $link: $primary-dark;
 $link-invert: findColorInvert($link);
 
+$danger: #b51031;
+$danger-invert: findColorInvert($danger);
+
 $colors: (
     "white": ($white, $black),
     "black": ($black, $white),
