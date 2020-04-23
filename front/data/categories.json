@@ -19,7 +19,14 @@
     "Mot de cinq lettres",
     "Mot de dix lettres",
     "Mot de plus de sept lettres",
+    "Mot de plus de douze lettres",
     "Mot de moins de sept lettres",
+    "Mot contenant un K",
+    "Mot contenant un W",
+    "Mot contenant un X",
+    "Mot contenant un Y",
+    "Mot qui commence et se termine par la lettre donnée",
+    "Mot rigolo",
     "Mot inventé (avec sa définition)"
   ],
   [
@@ -44,6 +51,7 @@
     "Village",
     "Village de moins de 500 habitants",
     "Ville qui n'existe plus",
+    "Ville portuaire",
     "Région géographique",
     "Fleuve",
     "Rivière",
@@ -51,7 +59,9 @@
     "Mer ou océan",
     "Fleuve, cours d'eau ou océan",
     "Monument célèbre",
-    "Monnaie"
+    "Station de métro",
+    "Monnaie",
+    "Langue"
   ],
   [
     "Prénom",
@@ -66,6 +76,7 @@
   [
     "Métier",
     "Métier dont rêvent les enfants",
+    "Métier fictif (avec une explication)",
     "Loisir",
     "Hobby"
   ],
@@ -103,6 +114,7 @@
     "Mammifère",
     "Race de chien",
     "Race de chat",
+    "Race de chien ou de chat",
     "Vers",
     "Tétrapode",
     "Amphibien",
@@ -123,13 +135,17 @@
     "Légume",
     "Fruit ou légume",
     "Nourriture",
+    "Nourriture ou boisson",
     "Boisson",
     "Boisson alcoolisée",
-    "Nourriture ou boisson",
+    "Vin",
+    "Cocktail",
     "Plat cuisiné",
+    "Pâtes",
     "Épice",
     "Fromage",
-    "Dessert"
+    "Dessert",
+    "Senteur"
   ],
   [
     "Art",
@@ -186,6 +202,7 @@
     "Marque",
     "Marque ou produit",
     "Site web",
+    "Application",
     "Slogan",
     "Slogan fictif",
     "Slogan réel ou fictif",
@@ -227,11 +244,13 @@
     "Gymnastique",
     "Équitation",
     "Sport d'hiver",
+    "Sport olympique",
     "Sport ancien"
   ],
   [
     "Anatomie du corps humain",
     "Anatomie du corps humain (interne uniquement)",
+    "Muscle",
     "Anatomie du cheval",
     "Anatomie de la loutre",
     "Anatomie d'un insecte"
@@ -258,6 +277,7 @@
   [
     "Façon de mourir",
     "Choses qui donnent le cancer",
+    "Lexique du coronavirus",
     "Où ne pas mettre les doigts"
   ],
   [
@@ -301,6 +321,8 @@
   [
     "Quelque chose qu'on trouve sur internet",
     "Quelque chose qu'on trouve dans une voiture",
+    "Quelque chose qu'on trouve dans un bateau",
+    "Quelque chose qu'on trouve dans un avion",
     "Quelque chose qu'on trouve dans un camping",
     "Quelque chose qu'on trouve dans un musée",
     "Quelque chose qu'on trouve dans une école",
@@ -312,6 +334,8 @@
     "Quelque chose qu'on trouve dans la forêt",
     "Quelque chose qu'on ne devrait pas trouver sur internet",
     "Quelque chose qu'on ne devrait pas trouver dans une voiture",
+    "Quelque chose qu'on ne devrait pas trouver dans un bateau",
+    "Quelque chose qu'on ne devrait pas trouver dans un avion",
     "Quelque chose qu'on ne devrait pas trouver dans un camping",
     "Quelque chose qu'on ne devrait pas trouver dans un musée",
     "Quelque chose qu'on ne devrait pas trouver dans une école",
