@@ -1,6 +1,16 @@
 <template>
   <section class="share-game">
-    <h3>Partager la partie</h3>
+    <header>
+      <h3>Partager la partie</h3>
+      <b-tooltip :label="lock_tooltip" position="is-bottom" type="is-light" :class="{'is-static': !master}">
+        <b-button
+          :icon-left="locked ? 'lock' : 'lock-open'"
+          :loading="lock_loading"
+          :disabled="!master"
+          @click="toggle_lock"
+          type="is-text" />
+      </b-tooltip>
+    </header>
     <b-field grouped size="is-small">
       <b-input
         :value="share_url"
@@ -40,9 +50,21 @@ export default {
       copied: false
     };
   },
-  computed: mapState({
-    share_url: state => `${window.location.origin}/${state.game.slug}`
-  }),
+  computed: {
+    ...mapState({
+      share_url: state => `${window.location.origin}/${state.game.slug}`,
+      locked: state => state.game.locked,
+      lock_loading: state => state.game.lock_loading,
+      master: state => state.master
+    }),
+    lock_tooltip() {
+      if (this.master) {
+        return this.locked ? 'Déverrouiller la partie' : 'Verrouiller la partie';
+      } else {
+        return this.locked ? 'Partie verrouillée' : 'Partie déverrouillée';
+      }
+    }
+  },
   methods: {
     copy_url() {
       let share_url_field = document.getElementById("share-url-field");
@@ -58,6 +80,12 @@ export default {
       }
 
       share_url_field.blur();
+    },
+
+    toggle_lock() {
+      if (this.master) {
+        this.$store.dispatch("lock_game", !this.locked);
+      }
     }
   }
 };
@@ -70,12 +98,40 @@ export default {
   +mobile
     margin: 0 1rem 1.5rem
 
-  h3
-    position: relative
-    left: 1px
+  header
+    display: flex
+    align-items: center
 
-    font-weight: bold
-    margin: 1rem 0 .4rem
+    h3
+      flex: 4
+
+      position: relative
+      left: 1px
+
+      font-weight: bold
+      margin: 1rem 0 .4rem
+
+    span.b-tooltip
+      button.button
+        position: relative
+        top: 5px
+
+        font-size: .9em
+        color: $grey
+
+        &, &:hover, &:active, &:focus
+          background: none
+          border: none
+          box-shadow: none
+
+        &:hover, &:active, &:focus
+          color: $grey-dark
+
+        span.icon
+          transform: scale(-1, 1)
+
+      &.is-static button.button
+        cursor: default
 
   .field.is-grouped
     position: relative

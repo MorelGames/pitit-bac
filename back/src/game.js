@@ -53,6 +53,7 @@ export class Game {
     };
 
     this.state = "CONFIG";
+    this.locked = false;
 
     this.current_round = 0;
     this.current_letter = null;
@@ -138,7 +139,7 @@ export class Game {
     let player = this.players[uuid];
     if (!player || !player.online || !player.connection) return;
 
-    this.server.send_message(player.connection, action, message);
+    return this.server.send_message(player.connection, action, message);
   }
 
   start_deletion_process() {
@@ -163,13 +164,22 @@ export class Game {
     // Is this a reconnection?
     let player = this.players[uuid];
 
+    // Existing player
     if (player && !player.online) {
       player.online = true;
       player.connection = connection;
       player.pseudonym = pseudonym; // It may change.
       player.master = master_player; // If the player is the first to reconnect it will be master.
     }
+
+    // New player
     else {
+      // If the game is locked, we refuse the connection.
+      if (this.locked) {
+        this.kick(uuid, true, connection);
+        return;
+      }
+
       player = {
         connection: connection,
         uuid: uuid,
@@ -196,7 +206,8 @@ export class Game {
     });
 
     // And the current game configuration
-    this.send_message(uuid, "config-updated", {configuration: this.configuration});
+    this.send_message(uuid, "config-updated", { configuration: this.configuration });
+    this.send_message(uuid, "game-locked", { locked: this.locked });
 
     // And the game state if we're not in CONFIG
     if (this.state !== "CONFIG") {
@@ -208,11 +219,11 @@ export class Game {
     this.halt_deletion_process();
   }
 
-  left(uuid) {
+  left(uuid, forget) {
     let player = this.players[uuid];
     if (!player) return;
 
-    if (this.state === "CONFIG") {
+    if (this.state === "CONFIG" || forget) {
       delete this.players[uuid];
     }
     else {
@@ -240,6 +251,23 @@ export class Game {
     if (this.master_player_uuid === uuid) {
       this.elect_random_master();
     }
+  }
+
+  kick(uuid, locked, connection) {
+    this.log("Kicking player " + uuid);
+
+    if (!connection && (!uuid || !this.players[uuid])) return;
+
+    return this.server.send_message(connection || this.players[uuid].connection, "kick", { locked }).then(() => {
+      if (uuid) {
+        let player = this.players[uuid];
+
+        if (player) {
+          this.left(uuid, this.locked);
+          player.connection.close();
+        }
+      }
+    });
   }
 
   /**
@@ -364,6 +392,17 @@ export class Game {
   switch_master(uuid, new_master_uuid) {
     if (this.master_player_uuid !== uuid) return;
     this.elect_master(new_master_uuid);
+  }
+
+  set_lock(uuid, locked) {
+    if (this.master_player_uuid !== uuid) return;
+    this.locked = locked;
+    this.broadcast("game-locked", { locked: this.locked });
+  }
+
+  kick_by_master(uuid, target_uuid) {
+    if (this.master_player_uuid !== uuid) return;
+    this.kick(target_uuid, false);
   }
 
   start(connection, uuid) {

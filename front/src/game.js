@@ -7,6 +7,10 @@ export default class GameClient {
     this.client = null;
     this.client_uuid = null;
     this.secret = null;
+
+    // The client won't try to automatically reconnect if the connection is lost
+    // after a kick.
+    this.kicked = false;
   }
 
   set_store(store) {
@@ -58,6 +62,7 @@ export default class GameClient {
 
   connect() {
     this.load_persisted_credentials();
+    this.kicked = false;
 
     return new Promise((resolve, reject) => {
       this.client = new WebSocket(this.ws_url, "pb-protocol");
@@ -73,10 +78,13 @@ export default class GameClient {
       };
 
       this.client.onclose = () => {
-        console.warn("WS connection closed. Trying to reconnect…");
-        this.store.dispatch("disconnected_from_socket");
+        console.warn("WS connection closed.");
         this.client.close();
-        setTimeout(() => this.reconnect(), 2000);
+
+        if (!this.kicked) {
+          this.store.dispatch("disconnected_from_socket");
+          setTimeout(() => this.reconnect(), 2000);
+        }
       };
 
       this.client.onmessage = message => {
@@ -149,6 +157,13 @@ export default class GameClient {
         this.set_uuid_and_secret(message.uuid, message.secret);
         break;
 
+      case "kick":
+        this.store.commit("set_kick_reason", message.locked ? 'locked': 'kicked');
+        this.store.commit("set_game_state", "PSEUDONYM");
+
+        this.kicked = true;
+        break;
+
       case "set-slug":
         this.store.dispatch("set_game_slug", message.slug);
         break;
@@ -175,6 +190,11 @@ export default class GameClient {
 
       case "config-updated":
         this.store.commit("update_game_configuration", message.configuration);
+        break;
+
+      case "game-locked":
+        this.store.commit("set_game_lock", !!message.locked);
+        this.store.commit("set_game_lock_loading", false);
         break;
 
       case "catch-up-game-state":
@@ -254,10 +274,22 @@ export default class GameClient {
     });
   }
 
+  lock_game(locked) {
+    return this.send_message("lock-game", { locked });
+  }
+
   switch_master(new_master_uuid) {
     return this.send_message("switch-master", {
       master: {
         uuid: new_master_uuid
+      }
+    });
+  }
+
+  kick_player(player_uuid) {
+    return this.send_message("kick-player", {
+      kick: {
+        uuid: player_uuid
       }
     });
   }

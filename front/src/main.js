@@ -4,8 +4,9 @@ import Vuex from "vuex";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faCheck,
-  faQuestionCircle,
   faExclamationCircle,
+  faLockOpen,
+  faLock,
   faChevronRight,
   faCaretUp,
   faCaretDown,
@@ -35,8 +36,9 @@ Vue.config.productionTip = false;
 
 library.add(
   faCheck,
-  faQuestionCircle,
   faExclamationCircle,
+  faLockOpen,
+  faLock,
   faChevronRight,
   faCaretUp,
   faCaretDown,
@@ -69,6 +71,9 @@ const store = new Vuex.Store({
       // stop when the first ends (if stopOnFirstCompletion) or when
       // all players end (else).
       infinite_duration: 600,
+
+      locked: false,
+      lock_loading: false,
 
       configuration: {
         categories: [
@@ -106,7 +111,13 @@ const store = new Vuex.Store({
         countdown_task: null
       },
 
-      scores: []
+      scores: [],
+
+      /**
+       * If kicked, can be “locked” or “kicked”.
+       * Should be null if not kicked.
+       */
+      kick_reason: null
     },
     search_engine: "https://qwant.com/?q={s}&t=web"
   },
@@ -129,6 +140,10 @@ const store = new Vuex.Store({
 
     set_loading(state, loading_message) {
       state.loading = loading_message;
+    },
+
+    set_kick_reason(state, reason) {
+      state.game.kick_reason = reason;
     },
 
     set_game_slug(state, slug) {
@@ -183,6 +198,14 @@ const store = new Vuex.Store({
 
     update_game_configuration(state, config) {
       state.game.configuration = config;
+    },
+
+    set_game_lock(state, locked) {
+      state.game.locked = locked;
+    },
+
+    set_game_lock_loading(state, loading) {
+      state.game.lock_loading = loading;
     },
 
     set_countdown_task(state, task) {
@@ -262,6 +285,8 @@ const store = new Vuex.Store({
     set_pseudonym_and_connect(context, pseudonym) {
       context.commit("set_pseudonym", pseudonym);
       context.commit("set_loading", "Connexion à la partie…");
+
+      context.commit("set_kick_reason", null);
 
       client
         .connect()
@@ -380,9 +405,21 @@ const store = new Vuex.Store({
       client.switch_master(new_master_uuid);
     },
 
+    kick_player(context, player_uuid) {
+      if (!context.state.master) return;
+      client.kick_player(player_uuid);
+    },
+
     update_game_configuration(context, configuration) {
       context.commit("update_game_configuration", configuration);
       client.send_config_update();
+    },
+
+    lock_game(context, locked) {
+      if (context.state.master) {
+        context.commit("set_game_lock_loading", true);
+        client.lock_game(locked);
+      }
     },
 
     ask_start_game() {

@@ -270,9 +270,18 @@ export default class GameServer {
                 game.update_configuration(connection, user_uuid, message.configuration);
                 break;
 
+            case "lock-game":
+                if (!game) return;
+                game.set_lock(user_uuid, !!message.locked);
+
             case "switch-master":
                 if (!game || !message.master || !message.master.uuid) return;
                 game.switch_master(user_uuid, message.master.uuid);
+                break;
+
+            case "kick-player":
+                if (!game || !message.kick || !message.kick.uuid) return;
+                game.kick_by_master(user_uuid, message.kick.uuid);
                 break;
 
             case "start-game":

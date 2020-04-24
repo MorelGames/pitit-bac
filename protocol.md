@@ -52,6 +52,16 @@ If the client is not master, or if the game's state is not `CONFIG`, the update 
 
 Else, a `config-updated` message will be broadcasted to the players of the game (excluding the client that sent the message), and the new configuration saved server-side.
 
+## `lock-game`
+
+Asks the server to (un)lock the game, preventing any new player to join. If the sender is not master, the message is ignored.
+
+```json
+{
+  "locked": true
+}
+```
+
 ## `switch-master`
 
 Asks the server to give master power to a specific player. If the sender is not master, the message is ignored.
@@ -60,6 +70,18 @@ Asks the server to give master power to a specific player. If the sender is not 
 {
   "master": {
     "uuid": "the new master's UUID"
+  }
+}
+```
+
+## `kick-player`
+
+Asks the server to kick a specific player. If the sender is not master, the message is ignored.
+
+```json
+{
+  "kick": {
+    "uuid": "the kicked player's UUID"
   }
 }
 ```
@@ -166,6 +188,16 @@ Sets the game's slug, to be sent in every subsequent message, and to be reflecte
 }
 ```
 
+## `kick`
+
+Indicates that the player was kicked from the game. If `locked` is true, that's because the game was locked.
+
+```json
+{
+    "locked": true
+}
+```
+
 ## `player-join`
 
 Indicates that a player joined the game. Also used when a player joins the game to send it all other already-connected players.
@@ -233,6 +265,16 @@ Indicates that the game's config has changed.
         "turns": 4,
         "time": 180
     }
+}
+```
+
+## `game-locked`
+
+Indicates that the game's locked (or not).
+
+```json
+{
+  "locked": true
 }
 ```
 
