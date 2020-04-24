@@ -42,7 +42,7 @@ export default {
   },
   computed: mapState({
     share_url(state) {
-      return window.location.origin + "/#" + state.game.slug;
+      return `${window.location.origin}/${state.game.slug}`;
     }
   }),
   methods: {

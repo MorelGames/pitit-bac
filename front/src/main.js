@@ -13,14 +13,12 @@ import {
   faUserAltSlash,
   faUserShield,
   faClipboard,
-  faAward,
-  faPersonBooth
+  faAward
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import Buefy from "buefy";
 import { SnackbarProgrammatic as Snackbar } from "buefy";
-import { DialogProgrammatic as Dialog } from "buefy";
 import "buefy/dist/buefy.css";
 
 import GameClient from "./game";
@@ -45,8 +43,7 @@ library.add(
   faUserAltSlash,
   faUserShield,
   faClipboard,
-  faAward,
-  faPersonBooth
+  faAward
 );
 
 Vue.component("vue-fontawesome", FontAwesomeIcon);
@@ -288,38 +285,11 @@ const store = new Vuex.Store({
         });
     },
 
-    set_game_slug_from_hash(context, slug) {
-      if (context.state.game.slug === slug) return;
-
-      if (context.state.game_state !== "PSEUDONYM") {
-        Dialog.confirm({
-          title: "Voulez-vous changer de partie ?",
-          message: `<strong>Vous venez de changer l'adresse de la page</strong>, avec l'adresse
-                    d'une autre partie de Pitit Bac.
-                    Désirez-vous rejoindre cette partie ?<br /><br />
-                    Attention, vous quitterez la partie en cours !`,
-          confirmText: "Rejoindre l'autre partie",
-          cancelText: "Rester sur cette partie",
-          focusOn: "cancel",
-          type: "is-danger",
-          hasIcon: true,
-          iconPack: "fas",
-          icon: "person-booth",
-          onConfirm: () => document.location.reload(),
-          onCancel: () => (document.location.hash = slug)
-        });
-      } else {
-        context.dispatch("set_game_slug", slug);
-      }
-    },
-
     set_game_slug(context, slug) {
+      const slug_not_changed = slug === context.state.game.slug;
+
       // If the player was connected to a different game than asked
-      if (
-        context.state.game.slug &&
-        slug !== context.state.game.slug &&
-        context.state.game_state === "CONFIG"
-      ) {
+      if (context.state.game.slug && !slug_not_changed && context.state.game_state === "CONFIG") {
         Snackbar.open({
           message: `Vous avez demandé à rejoindre une partie, mais celle-ci n'existait pas. Nous en avons créé une nouvelle pour vous.`,
           queue: false,
@@ -329,7 +299,10 @@ const store = new Vuex.Store({
       }
 
       context.commit("set_game_slug", slug);
-      document.location.hash = slug;
+
+      if (!slug_not_changed) {
+        window.history.pushState(null, '', `/${slug}`);
+      }
     },
 
     player_join(context, player) {
@@ -578,15 +551,11 @@ const store = new Vuex.Store({
 
 client.set_store(store);
 
-store.dispatch("set_game_slug_from_hash", document.location.hash.substring(1));
-
-// Updates the slug if the hash is changed, before the connection to the server.
-window.onhashchange = function() {
-  let hash = document.location.hash.substring(1);
-  if (store.state.game.slug !== hash) {
-    store.dispatch("set_game_slug_from_hash", hash);
-  }
-};
+// We read the slug from the URL, if it exists.
+const url_slug = window.location.pathname.slice(1).split('/')[0];
+if (url_slug) {
+  store.dispatch("set_game_slug", url_slug)
+}
 
 new Vue({
   render: h => h(App),
