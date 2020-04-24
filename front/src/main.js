@@ -4,6 +4,7 @@ import Vuex from "vuex";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faCheck,
+  faQuestionCircle,
   faExclamationCircle,
   faChevronRight,
   faCaretUp,
@@ -34,6 +35,7 @@ Vue.config.productionTip = false;
 
 library.add(
   faCheck,
+  faQuestionCircle,
   faExclamationCircle,
   faChevronRight,
   faCaretUp,

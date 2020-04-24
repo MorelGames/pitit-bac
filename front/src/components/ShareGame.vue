@@ -11,16 +11,16 @@
         @focus="$event.target.select()"
       >
       </b-input>
-      <p class="control">
+      <p class="control copy-button">
         <b-tooltip
           :label="copied ? 'Copié !' : 'Copier dans le presse-papier'"
           position="is-bottom"
           type="is-light"
-          multiline
+          multilined
         >
-          <button class="button is-light" @click.stop.prevent="copy_url">
-            <b-icon pack="fas" icon="clipboard" size="is-small"></b-icon>
-          </button>
+          <b-button class="button is-light" icon-left="clipboard" @click.stop.prevent="copy_url" :expanded="true">
+            Copier le lien
+          </b-button>
         </b-tooltip>
       </p>
     </b-field>
@@ -41,9 +41,7 @@ export default {
     };
   },
   computed: mapState({
-    share_url(state) {
-      return `${window.location.origin}/${state.game.slug}`;
-    }
+    share_url: state => `${window.location.origin}/${state.game.slug}`
   }),
   methods: {
     copy_url() {
@@ -80,6 +78,8 @@ export default {
     margin: 1rem 0 .4rem
 
   .field.is-grouped
+    position: relative
+
     margin-bottom: .4em
     align-items: center
 
@@ -91,6 +91,15 @@ export default {
 
       +mobile
         font-size: 0.95rem
+
+    // This element must remain “displayed”, else copy will not work.
+    .control:not(.copy-button)
+      position: absolute
+      margin-left: -999999px
+
+    .control.copy-button
+      &, & .b-tooltip
+        width: 100%
 
   .share-invite
     position: relative
