@@ -43,14 +43,15 @@
         ></CircularProgress>
         <div class="field">
           <b-tooltip
-            multilined
-            :label="
-              !all_fields_completed
-                ? 'Remplissez correctement toutes les catégories avant de valider vos résultats'
-                : 'Cliquez ici pour envoyer vos résultats' +
-                  (stop_on_first_completion
-                    ? ' et interrompre les autres joueurs.'
-                    : ' et indiquer aux autres joueurs que vous avez fini. Vous pourrez toujours les modifier avant la fin du temps imparti, ou tant que tout le monde n\'a pas fini.')
+            :multilined="!we_finished"
+            :label="we_finished
+                ? 'Attendez les autres…'
+                : (!all_fields_completed
+                    ? 'Remplissez correctement toutes les catégories avant de valider vos résultats'
+                    : 'Cliquez ici pour envoyer vos résultats' +
+                      (stop_on_first_completion
+                        ? ' et interrompre les autres joueurs.'
+                        : ' et indiquer aux autres joueurs que vous avez fini. Vous pourrez toujours les modifier avant la fin du temps imparti, ou tant que tout le monde n\'a pas fini.'))
             "
             type="is-dark"
             position="is-bottom"
@@ -58,9 +59,12 @@
             <b-button
               type="is-primary is-medium"
               expanded
-              :disabled="end_signal_received || !all_fields_completed"
+              :disabled="we_finished || end_signal_received || !all_fields_completed"
               @click.once="round_finished"
-              >J'ai terminé !</b-button
+              >
+                <template v-if="!we_finished">J'ai terminé !</template>
+                <template v-else>Patientez…</template>
+              </b-button
             >
           </b-tooltip>
         </div>
@@ -79,7 +83,8 @@ export default {
   data: function() {
     return {
       interval_id: null,
-      answers: {}
+      answers: {},
+      we_finished: false
     };
   },
   computed: {
@@ -238,6 +243,7 @@ export default {
       );
     },
     round_finished() {
+      this.we_finished = true;
       this.answers_updated();
       this.$store.dispatch("round_finished");
     },

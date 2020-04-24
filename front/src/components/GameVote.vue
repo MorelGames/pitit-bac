@@ -60,7 +60,7 @@
         <h3 class="title is-4">{{ category }}</h3>
 
         <div
-          class="level"
+          class="level" :class="{'has-lots-of-votes': answer.votes.length > 10}"
           v-for="(answer, j) in answers_in_category(category)"
           :key="j"
         >
@@ -97,7 +97,6 @@
                       "
                       position="is-bottom"
                       type="is-light"
-                      animated
                       multilined
                     >
                       <a
@@ -295,6 +294,13 @@ export default {
     +mobile
       width: 100%
       border-radius: 0
+
+    .level.has-lots-of-votes
+      flex-direction: column
+      align-items: flex-start
+
+      .level-right
+        align-self: end
 
     // Avoids long answers to overflow
     .level-left
