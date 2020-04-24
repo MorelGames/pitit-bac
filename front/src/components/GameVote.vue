@@ -193,6 +193,8 @@ export default {
           });
         });
 
+        votes.sort((a, b) => a.voter.pseudonym.toLowerCase().localeCompare(b.voter.pseudonym.toLowerCase()));
+
         answers.push({
           uuid: uuid,
           answer: {
@@ -203,6 +205,8 @@ export default {
           author: this.players[uuid]
         });
       });
+
+      answers.sort((a, b) => a.author.pseudonym.toLowerCase().localeCompare(b.author.pseudonym.toLowerCase()));
 
       return answers;
     },
