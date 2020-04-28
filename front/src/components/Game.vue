@@ -170,7 +170,7 @@ export default {
           cardinal = "Dix-neuvième";
           break;
         case 20:
-          cardinal = "Vigtième";
+          cardinal = "Vingtième";
           break;
         default:
           cardinal = `${this.current_round.round}ème`;
