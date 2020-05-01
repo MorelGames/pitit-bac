@@ -119,12 +119,17 @@ export class Game {
       return "D";
     }
 
-    if (this.used_letters.length == this.configuration.alphabet.length) {
+    // We reset the alphabet if all letters were drawn.
+    if (this.used_letters.length === this.configuration.alphabet.length) {
       this.used_letters = [];
     }
 
-    while (!letter || this.used_letters.indexOf(letter) !== -1) {
+    // An infinite loop here would hang the whole server for every players, so
+    // we want extra securities.
+    let draws = 0;
+    while (!letter || (this.used_letters.indexOf(letter) !== -1 && draws < 64)) {
       letter = this.configuration.alphabet.charAt(Math.floor(Math.random() * this.configuration.alphabet.length));
+      draws++;
     }
 
     this.used_letters.push(letter);
@@ -621,7 +626,11 @@ export class Game {
 
       Object.keys(this.rounds).forEach(round => {
         this.configuration.categories.forEach(category => {
+          if (!this.rounds[round].votes) return;
+
           let votes = this.rounds[round].votes[category];
+          if (!votes) return;
+
           let player_votes = votes[uuid];
 
           if (!player_votes || !player_votes.answer) {

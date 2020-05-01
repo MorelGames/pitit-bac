@@ -106,8 +106,8 @@ export default {
   computed: {
     ...mapState({
       scores: state => state.game.scores,
-      players: state => state.players,
-      master: state => state.master
+      players: state => state.morel.players,
+      master: state => state.morel.master
     }),
     firsts() {
       return this.nth_winners(1);

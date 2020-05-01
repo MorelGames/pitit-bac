@@ -424,9 +424,9 @@ export default {
   },
   computed: {
     ...mapState({
-      master: state => state.master,
+      master: state => state.morel.master,
       infinite_duration: state => state.game.infinite_duration,
-      config: state => state.game.configuration
+      config: state => state.morel.configuration
     }),
     flat_suggested_categories() {
       return Array.prototype.concat.apply([], this.suggested_categories);
@@ -447,10 +447,10 @@ export default {
       );
     },
     has_players() {
-      return Object.values(this.$store.state.players).length > 1;
+      return Object.values(this.$store.state.morel.players).length > 1;
     },
     has_categories() {
-      return this.$store.state.game.configuration.categories.length !== 0;
+      return this.$store.state.morel.configuration.categories.length !== 0;
     },
     required_fields_filled() {
       return (
@@ -512,7 +512,7 @@ export default {
       // the server is the value before the update, and the configuration update
       // messages resets the value to the previous one immediatly.
       this.$nextTick(() =>
-        this.$store.dispatch("update_game_configuration", this.config)
+        this.$store.dispatch("morel/update_game_configuration", this.config)
       );
     },
 
@@ -529,7 +529,7 @@ export default {
 
     has_category(category) {
       return (
-        this.$store.state.game.configuration.categories.indexOf(category) !== -1
+        this.$store.state.morel.configuration.categories.indexOf(category) !== -1
       );
     },
 

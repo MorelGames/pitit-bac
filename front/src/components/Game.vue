@@ -89,14 +89,14 @@ export default {
   },
   computed: {
     ...mapState({
-      slug: state => state.game.slug,
+      slug: state => state.morel.slug,
       current_round: state => state.game.current_round,
-      total_rounds: state => state.game.configuration.turns,
+      total_rounds: state => state.morel.configuration.turns,
       stop_on_first_completion: state =>
-        state.game.configuration.stopOnFirstCompletion,
-      categories: state => state.game.configuration.categories,
+        state.morel.configuration.stopOnFirstCompletion,
+      categories: state => state.morel.configuration.categories,
       letter: state => state.game.current_round.letter,
-      total_time: state => state.game.configuration.time,
+      total_time: state => state.morel.configuration.time,
       time_left: state => state.game.current_round.time_left,
       end_signal_received: state => state.game.current_round.ended
     }),
@@ -191,13 +191,14 @@ export default {
     // We check if we have answers stored into the session for this game/round.
     try {
       let stored_answers = JSON.parse(
-        sessionStorage.getItem("pb_round_answers") || ""
+        sessionStorage.getItem("pb-round-answers") || ""
       );
 
       // If the data is fresh and match the current game/round (TODO match with categories or round starting time?)
       if (
         stored_answers.game === this.slug &&
         stored_answers.letter === this.letter &&
+        stored_answers.round === this.current_round.round &&
         (new Date().getTime() - stored_answers.time) / 1000 < 600
       ) {
         this.answers = stored_answers.answers;
@@ -232,7 +233,7 @@ export default {
       // We store the answers into the session storage, to be able to restore
       // them in case of a reload.
       sessionStorage.setItem(
-        "pb_round_answers",
+        "pb-round-answers",
         JSON.stringify({
           game: this.slug,
           round: this.current_round.round,

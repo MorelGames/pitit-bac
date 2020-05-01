@@ -164,12 +164,12 @@ export default {
     ...mapState({
       letter: state => state.game.current_round.letter,
       votes: state => state.game.current_round.votes,
-      players: state => state.players,
-      own_uuid: state => state.uuid,
-      interrupted: state => state.game.configuration.stopOnFirstCompletion,
+      players: state => state.morel.players,
+      own_uuid: state => state.morel.uuid,
+      interrupted: state => state.morel.configuration.stopOnFirstCompletion,
       interrupted_by: state => {
         let interrupter =
-          state.players[state.game.current_round.interrupted_by];
+          state.morel.players[state.game.current_round.interrupted_by];
         return interrupter ? interrupter.pseudonym : null;
       },
       search_engine: state => state.search_engine

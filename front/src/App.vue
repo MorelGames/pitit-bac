@@ -1,18 +1,21 @@
 <template>
   <div id="app">
-    <b-loading :is-full-page="true" :active="!!loading" :can-cancel="false">
-      <p v-html="loading_title"></p>
-      <p
-        class="loading-subtitle"
-        v-if="loading_subtitle"
-        v-html="loading_subtitle"
-      ></p>
+    <b-loading :is-full-page="true" :active="has_fullscreen_message" :can-cancel="false">
+      <template slot="default" v-if="loading_reason.title || error.title">
+        <p v-html="loading_reason.title || error.title" :class="{'is-pulsing': !!loading}"></p>
+        <p
+          class="loading-subtitle"
+          v-if="loading_reason.title || error.title"
+          v-html="loading_reason.description || error.description"
+        ></p>
+      </template>
     </b-loading>
+
     <main>
       <div
         class="container"
-        :class="{ 'is-loading': !!loading }"
-        v-if="state != 'PSEUDONYM'"
+        :class="{ 'is-loading': has_fullscreen_message }"
+        v-if="phase != 'PSEUDONYM'"
       >
         <div class="pititbac-logo is-mobile" aria-hidden="true">
           <img src="./assets/logo.svg" alt="Pitit Bac" />
@@ -22,26 +25,32 @@
             <div class="pititbac-logo">
               <img src="./assets/logo.svg" alt="Pitit Bac" />
             </div>
-            <Players></Players>
-            <ShareGame></ShareGame>
+            <morel-players
+              master-confirm-message="<strong>{name}</strong> pourra gérer la partie, sa configuration, ou relancer une nouvelle partie à la fin. Vous perdrez ces pouvoirs."
+              master-confirm-help="Le maître du jeu ne peut pas influencer les votes ou la partie, uniquement sa configuration ou son relancement. Il ou elle peut également expulser des joueurs et verrouiller la partie." />
+            <morel-share-game />
           </div>
           <div class="column is-9">
-            <GameConfiguration v-if="state === 'CONFIG'"></GameConfiguration>
-            <Game v-else-if="state === 'ROUND_ANSWERS'"></Game>
-            <GameVote v-else-if="state === 'ROUND_VOTES'"></GameVote>
-            <GameEnd v-else-if="state === 'END'"></GameEnd>
+            <GameConfiguration v-if="phase === 'CONFIG'"></GameConfiguration>
+            <Game v-else-if="phase === 'ROUND_ANSWERS'"></Game>
+            <GameVote v-else-if="phase === 'ROUND_VOTES'"></GameVote>
+            <GameEnd v-else-if="phase === 'END'"></GameEnd>
           </div>
         </div>
       </div>
-      <div v-else class="container" :class="{ 'is-loading': !!loading }">
+      <div v-else class="container" :class="{ 'is-loading': has_fullscreen_message }">
         <div class="columns">
           <div class="column is-half is-offset-3">
-            <AskPseudonym></AskPseudonym>
+            <header class="init-logo">
+              <img src="./assets/logo.svg" alt="Pitit Bac" />
+            </header>
+            <morel-ask-pseudonym />
           </div>
         </div>
       </div>
     </main>
-    <footer class="footer" :class="{ 'is-loading': !!loading }">
+
+    <footer class="footer" :class="{ 'is-loading': has_fullscreen_message }">
       <div class="content has-text-centered">
         <p>
           <em>Pitit Bac</em> est réalisé par
@@ -59,11 +68,6 @@
 <script>
 import { mapState } from "vuex";
 
-// import CircularProgress from "./components/CircularProgress.vue";
-
-import AskPseudonym from "./components/AskPseudonym.vue";
-import Players from "./components/Players.vue";
-import ShareGame from "./components/ShareGame.vue";
 import GameConfiguration from "./components/GameConfiguration.vue";
 import Game from "./components/Game.vue";
 import GameVote from "./components/GameVote.vue";
@@ -72,21 +76,14 @@ import GameEnd from "./components/GameEnd.vue";
 export default {
   name: "App",
   computed: {
-    ...mapState({
-      state: "game_state",
-      loading: "loading"
+    ...mapState('morel', {
+      phase: state => state.phase,
+      loading: state => state.loading,
+      loading_reason: state => state.loading_reason,
+      error: state => state.error
     }),
-
-    loading_title() {
-      if (!this.loading) return null;
-      return typeof this.loading === "string"
-        ? this.loading
-        : this.loading.title;
-    },
-
-    loading_subtitle() {
-      if (!this.loading) return null;
-      return typeof this.loading === "string" ? null : this.loading.subtitle;
+    has_fullscreen_message() {
+      return !!this.loading || (!!this.error && !!this.error.title)
     }
   },
 
@@ -97,9 +94,6 @@ export default {
   },
 
   components: {
-    AskPseudonym,
-    Players,
-    ShareGame,
     GameConfiguration,
     Game,
     GameVote,
@@ -171,7 +165,8 @@ html.overflow, html.overflow body
 
       text-align: center
 
-      animation: pulse 2s infinite
+      &.is-pulsing
+        animation: pulse 2s infinite
 
       strong
         font-weight: 400
@@ -213,6 +208,17 @@ html.overflow, html.overflow body
         display: none
       +tablet
         display: block
+
+  .init-logo
+    text-align: center
+    margin-bottom: 4rem
+    width: 100%
+
+    img
+      width: 70%
+
+      +mobile
+        width: 90%
 
   .columns.layout-columns
     +mobile
