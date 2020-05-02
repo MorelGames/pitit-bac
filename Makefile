@@ -17,6 +17,9 @@ lint-front:
 
 build-front:
 	cd front && npm run build
+	mv front/dist front/dist-old
+	mv front/dist-build front/dist
+	rm -rf front/dist-old
 
 ui:
 	cd front && vue ui
