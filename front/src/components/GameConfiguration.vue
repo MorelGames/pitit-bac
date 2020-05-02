@@ -1,7 +1,7 @@
 <template>
   <div class="game-configuration">
     <b-message
-      :title="master ? 'Configurer la partie' : 'Configuration de la partie'"
+      :title="master ? $t('Configure the game') : $t('Game configuration')"
       :closable="false"
       type="is-primary"
     >
@@ -9,24 +9,26 @@
         <div class="columns">
           <div class="column is-half is-column-with-start-button">
             <b-field
-              label="Catégories à remplir"
+              :label="$t('Categories')"
               :message="
                 master
-                  ? 'Écrivez le nom de la catégorie, et tapez “entrée” pour l\'ajouter.'
+                  ? $t(
+                      'Write down the category you want, and press enter to add it.'
+                    )
                   : ''
               "
             >
               <template slot="label">
                 <div class="columns is-mobile">
                   <div class="column is-8">
-                    Catégories à remplir
+                    {{ $t("Categories") }}
                   </div>
                   <div class="column is-4 suggestions-link">
                     <a
                       href="#"
                       class="suggestions-link-trigger"
                       @click.prevent="toggle_suggestions_modale()"
-                      >Suggestions</a
+                      >{{ $t("Suggestions") }}</a
                     >
                   </div>
                 </div>
@@ -39,7 +41,7 @@
                 :confirm-key-codes="[13, 9]"
                 @input="update_game_configuration"
                 @typing="update_suggestions"
-                placeholder="Ajouter une catégorie…"
+                :placeholder="$t('Add a category…')"
                 :disabled="!master"
                 type="is-primary-dark"
               >
@@ -56,14 +58,14 @@
                   expanded
                   :disabled="!master || !can_start"
                   @click="start_game"
-                  >Démarrer la partie</b-button
+                  >{{ $t("Start the game") }}</b-button
                 ></b-tooltip
               >
             </div>
           </div>
           <div class="column is-half">
             <b-field
-              :label="'Nombre de tours : ' + config.turns"
+              :label="$t('Rounds: {rounds}', { rounds: config.turns })"
               class="no-extended-margin-top"
             >
               <b-slider
@@ -86,9 +88,12 @@
 
             <b-field>
               <template slot="label">
-                Durée maximale par tour :
-                <span class="is-date-desktop">{{ actual_time }}</span>
-                <span class="is-date-mobile">{{ actual_time_mobile }}</span>
+                <i18n path="Time limit for each round: {limit}">
+                  <template slot="limit">
+                    <span class="is-date-desktop">{{ actual_time }}</span>
+                    <span class="is-date-mobile">{{ actual_time_mobile }}</span>
+                  </template>
+                </i18n>
               </template>
               <b-slider
                 size="is-medium"
@@ -119,7 +124,7 @@
                 v-model="config.stopOnFirstCompletion"
                 @input="update_game_configuration"
               >
-                Arrêter chaque tour lorsque quelqu'un a terminé
+                {{ $t("Stop rounds as soon as the first player finishes") }}
               </b-switch>
             </div>
           </div>
@@ -137,7 +142,7 @@
             expanded
             :disabled="!master || !can_start"
             @click="start_game"
-            >Démarrer la partie</b-button
+            >{{ $t("Start the game") }}</b-button
           ></b-tooltip
         >
       </div>
@@ -148,27 +153,23 @@
       >
         <div class="modal-card suggestions-card">
           <header class="modal-card-head">
-            <p class="modal-card-title">Suggestions de catégories</p>
+            <p class="modal-card-title">{{ $t("Categories suggestions") }}</p>
           </header>
           <section class="modal-card-body">
             <div v-if="master">
-              <p>
-                Des idées de catégories sont suggérées ci-dessous. Vous pouvez
-                toujours entrer directement vos propres catégories — n'hésitez
-                pas si vous avez des idées originales ou des références
-                privées !
-              </p>
-              <p>
-                Cliquez sur une catégorie pour l'ajouter ou la supprimer.
-              </p>
+              <p
+                v-t="
+                  'Categories ideas are suggested below. You can always write your own categories directly—don\'t hesitate if you have original ideas or private references!'
+                "
+              />
+              <p v-t="'Click on a category to add or remove it.'" />
             </div>
             <div v-else>
-              <p>
-                Des idées de catégories sont suggérées ci-dessous. Le maître du
-                jeu peut toujours entrer directement vos propres catégories —
-                n'hésitez pas à lui demander si vous avez des idées originales
-                ou des références privées !
-              </p>
+              <p
+                v-t="
+                  'Categories ideas are suggested below. The game master can write your own categories directly—don\'t hesitate to ask if you have original ideas or private references!'
+                "
+              />
             </div>
 
             <div
@@ -188,6 +189,18 @@
                 >{{ suggestion }}</span
               >
             </div>
+
+            <b-notification
+              type="is-light"
+              v-if="suggested_categories.length === 0"
+              :closable="false"
+            >
+              {{
+                $t(
+                  "Sorry, but there are no suggestions available for your language."
+                )
+              }}
+            </b-notification>
           </section>
           <footer class="modal-card-foot">
             <button
@@ -195,7 +208,7 @@
               type="button"
               @click="toggle_suggestions_modale()"
             >
-              Fermer
+              {{ $t("Close") }}
             </button>
           </footer>
         </div>
@@ -207,7 +220,7 @@
       :class="{ 'is-active': show_advanced }"
       @click="show_advanced = !show_advanced"
     >
-      Paramètres avancés
+      {{ $t("Advanced settings") }}
       <b-icon :icon="show_advanced ? 'caret-up' : 'caret-down'"></b-icon>
     </div>
 
@@ -215,12 +228,14 @@
       <div class="columns">
         <div class="column is-half">
           <b-field
-            message="La lettre de chaque tour sera extraite au hasard de ces lettres."
+            :message="
+              $t('Each round\'s letter will be drawn from these letters.')
+            "
           >
             <template slot="label">
               <div class="columns is-mobile">
                 <div class="column is-half">
-                  Alphabet
+                  {{ $t("Alphabet") }}
                 </div>
                 <div class="column is-half suggestions-link" v-if="master">
                   <b-dropdown aria-role="list" position="is-bottom-left">
@@ -231,7 +246,7 @@
                       slot="trigger"
                       role="button"
                     >
-                      Pré-sélections
+                      {{ $t("Presets") }}
                       <b-icon icon="caret-down" size="is-small"></b-icon>
                     </a>
 
@@ -244,8 +259,8 @@
                         v-if="i != 0"
                       ></b-dropdown-item>
                       <div class="dropdown-item">
-                        <h4>{{ alphabets_cat }}</h4>
-                        <p>{{ alphabets[alphabets_cat].description }}</p>
+                        <h4>{{ $t(alphabets_cat) }}</h4>
+                        <p>{{ $t(alphabets[alphabets_cat].description) }}</p>
                       </div>
                       <b-dropdown-item
                         aria-role="listitem"
@@ -263,18 +278,18 @@
                           alphabets[alphabets_cat].alphabets
                         )"
                         :key="j"
-                        >{{ alphabet_in_cat }}</b-dropdown-item
+                        >{{ $t(alphabet_in_cat) }}</b-dropdown-item
                       >
                     </div>
 
                     <b-dropdown-item separator></b-dropdown-item>
                     <div class="dropdown-item">
                       <p>
-                        Votre langue ou alphabet manque à la liste ?
+                        {{ $t("Your language or alphabet is missing?") }}
                         <a
-                          href="https://github.com/AmauryCarrade/pitit-bac/issues"
+                          href="https://github.com/MorelGames/pitit-bac/issues"
                           target="_blank"
-                          >Dites-nous comment l'ajouter !</a
+                          >{{ $t("Explain us how to add it!") }}</a
                         >
                       </p>
                     </div>
@@ -295,7 +310,7 @@
             <template slot="label">
               <div class="columns is-mobile">
                 <div class="column is-half">
-                  Scores
+                  {{ $t("Scores") }}
                 </div>
                 <div class="column is-half suggestions-link">
                   <b-dropdown aria-role="list" position="is-bottom-left">
@@ -306,51 +321,54 @@
                       slot="trigger"
                       role="button"
                     >
-                      Explications
+                      {{ $t("How does it work?") }}
                       <b-icon icon="caret-down" size="is-small"></b-icon>
                     </a>
 
                     <div class="dropdown-item">
-                      <h4>Valide</h4>
-                      <p>
-                        Points attribués si la réponse est correcte, acceptée
-                        par tous, et unique.
-                      </p>
+                      <h4 v-t="'Valid'" />
+                      <p
+                        v-t="
+                          'Points granted if the answer is correct, accepted by all players, and unique.'
+                        "
+                      />
                     </div>
                     <div class="dropdown-item">
-                      <h4>Dupliquée</h4>
-                      <p>
-                        Points attribués si la réponse est correcte, acceptée
-                        par tous, mais que plusieurs personne ont répondu la
-                        même chose.
-                      </p>
-                    </div>
-                    <b-dropdown-item separator></b-dropdown-item>
-                    <div class="dropdown-item">
-                      <h4>Invalide</h4>
-                      <p>
-                        Points attribués si la réponse n'est pas correcte (elle
-                        ne commence pas par la bonne lettre).
-                      </p>
-                    </div>
-                    <div class="dropdown-item">
-                      <h4>Refusée</h4>
-                      <p>
-                        Points attribués si la réponse commence par la bonne
-                        lettre, mais est refusée par la majorité des
-                        participants.
-                      </p>
-                    </div>
-                    <div class="dropdown-item">
-                      <h4>Vide</h4>
-                      <p>Points attribués si la réponse est manquante.</p>
+                      <h4 v-t="'Duplicated'" />
+                      <p
+                        v-t="
+                          'Points granted if the answer is correct, accepted by all players, but when other players answered the same thing.'
+                        "
+                      />
                     </div>
                     <b-dropdown-item separator></b-dropdown-item>
                     <div class="dropdown-item">
-                      <p>
-                        Les scores peuvent être négatifs (les points sont alors
-                        retirés du score du joueur).
-                      </p>
+                      <h4 v-t="'Invalid'" />
+                      <p
+                        v-t="
+                          'Points granted if the answer is not correct (does not start with the correct letter).'
+                        "
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <h4 v-t="'Refused'" />
+                      <p
+                        v-t="
+                          'Points granted if the answer starts with the correct letter, but was voted against by a majority of players.'
+                        "
+                      />
+                    </div>
+                    <div class="dropdown-item">
+                      <h4 v-t="'Empty'" />
+                      <p v-t="'Points granted if the answer is missing.'" />
+                    </div>
+                    <b-dropdown-item separator></b-dropdown-item>
+                    <div class="dropdown-item">
+                      <p
+                        v-t="
+                          'Scores can be negative (points are then subtracted from the player\'s score).'
+                        "
+                      />
                     </div>
                   </b-dropdown>
                 </div>
@@ -360,7 +378,7 @@
               class="columns scores-columns is-mobile is-multiline"
               :class="{ 'is-disabled': !master }"
             >
-              <b-field class="column" label="Valide">
+              <b-field class="column" :label="$t('Valid')">
                 <b-input
                   type="number"
                   v-model="config.scores.valid"
@@ -368,7 +386,7 @@
                   :disabled="!master"
                 ></b-input>
               </b-field>
-              <b-field class="column" label="Dupliquée">
+              <b-field class="column" :label="$t('Duplicated')">
                 <b-input
                   type="number"
                   v-model="config.scores.duplicate"
@@ -376,7 +394,7 @@
                   :disabled="!master"
                 ></b-input>
               </b-field>
-              <b-field class="column" label="Invalide">
+              <b-field class="column" :label="$t('Invalid')">
                 <b-input
                   type="number"
                   v-model="config.scores.invalid"
@@ -384,7 +402,7 @@
                   :disabled="!master"
                 ></b-input>
               </b-field>
-              <b-field class="column" label="Refusée">
+              <b-field class="column" :label="$t('Refused')">
                 <b-input
                   type="number"
                   v-model="config.scores.refused"
@@ -392,7 +410,7 @@
                   :disabled="!master"
                 ></b-input>
               </b-field>
-              <b-field class="column" label="Vide">
+              <b-field class="column" :label="$t('Empty')">
                 <b-input
                   type="number"
                   v-model="config.scores.empty"
@@ -419,7 +437,8 @@ export default {
       suggestions_opened: false,
       show_advanced: false,
       alphabets: require("../../data/alphabets.json"),
-      suggested_categories: require("../../data/categories.json")
+      categories_edited: false,
+      suggested_categories: []
     };
   },
   computed: {
@@ -428,17 +447,20 @@ export default {
       infinite_duration: state => state.game.infinite_duration,
       config: state => state.morel.configuration
     }),
+    locale() {
+      return this.$i18n.locale;
+    },
     flat_suggested_categories() {
       return Array.prototype.concat.apply([], this.suggested_categories);
     },
     actual_time() {
       return this.$store.getters.is_time_infinite
-        ? "infinie"
+        ? this.$t("infinite")
         : this.format_seconds(this.config.time, true);
     },
     actual_time_mobile() {
       return this.$store.getters.is_time_infinite
-        ? "infinie"
+        ? this.$t("infinite")
         : this.format_seconds(this.config.time, true, true);
     },
     can_start() {
@@ -470,29 +492,106 @@ export default {
     start_button_tooltip() {
       if (this.master) {
         if (!this.has_players)
-          return "Il n'y a que vous ! Invitez d'autres joueurs à vous rejoindre avec le lien ci-contre…";
+          return this.$t(
+            "You're alone! Invite other players to join using the game link…"
+          );
         else if (!this.has_categories)
-          return "Vous ne pouvez pas démarrer le jeu sans aucune catégorie.";
+          return this.$t("You cannot start the game without categories.");
         else if (!this.required_fields_filled)
-          return "Certains champs ne sont pas correctement remplis.";
+          return this.$t("Some fields are not correctly set.");
         else return "";
       } else {
-        return "Veuillez patienter — le maître du jeu va lancer la partie…";
+        return this.$t("Please wait—the game master will start the game…");
       }
     }
   },
   methods: {
+    load_suggestions(init) {
+      // Okay so what are we doing here (if init = true).
+      // We want default categories to be set according to the current locale,
+      // except if there are some saved categories on the server. The server
+      // don't sent a configuration message if the game was just created, so
+      // we use that as a signal.
+      // If a configuration message is sent, there is a good chance it will be
+      // received during the categories loading. So we check if the categories
+      // list is still empty. If it's not, we don't update it as it was filled
+      // by the server. If it is, maybe the network is a little bit slow so we
+      // wait one more second to save the configuration server side, so if the
+      // message is received before, the update will contains this and the
+      // server version will be kept.
+      // Also, if there are categories received in init mode we set the
+      // categories as edited, so we won't erase them if the user changes its
+      // locale.
+      // In other cases, we're on a new game, so we can write our categories
+      // normally.
+      // If init = false, this is called from a locale switch. Then, we only
+      // update the categories with the default if they were not updated by the
+      // user yet.
+      import(
+        /* webpackChunkName: "categories-[request]" */ "./../../locales/categories/" +
+          this.locale +
+          ".json"
+      )
+        .then(categories => {
+          this.suggested_categories = categories.default.suggestions;
+
+          if (!this.master) return;
+
+          if (
+            (init && this.config.categories.length === 0) ||
+            (!init && !this.categories_edited)
+          ) {
+            this.config.categories = categories.default.default.categories;
+            this.config.alphabet = categories.default.default.alphabet;
+
+            setTimeout(
+              () => {
+                this.$store.dispatch(
+                  "morel/update_game_configuration",
+                  this.config
+                );
+              },
+              init ? 1000 : 1
+            );
+          } else if (init) {
+            this.categories_edited = true;
+          }
+        })
+        .catch(() => {
+          this.suggested_categories = [];
+        });
+    },
+
     format_seconds(seconds, long, mobile) {
       let mm = Math.floor(seconds / 60);
       let ss = seconds - mm * 60;
 
-      return long
-        ? (mm > 0 ? `${mm} minute${mm > 1 ? "s" : ""}` : "") +
-            (mm > 0 && ss > 0 && !mobile ? " et" : "") +
-            (ss > 0
-              ? ` ${ss}` + (mobile ? "" : ` seconde${ss > 1 ? "s" : ""}`)
-              : "")
-        : `${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+      const $t = this.$t.bind(this);
+      const $tc = this.$tc.bind(this);
+
+      if (long) {
+        if (mm > 0 && ss > 0) {
+          if (mobile) {
+            return $t("{minutes} and {seconds}", {
+              minutes: $tc("{n} minute | {n} minutes", mm),
+              seconds: $tc("{n}s | {n}s", ss)
+            });
+          } else {
+            return $t("{minutes} and {seconds}", {
+              minutes: $tc("{n} minute | {n} minutes", mm),
+              seconds: $tc("{n} second | {n} seconds", ss)
+            });
+          }
+        } else if (mm > 0) {
+          return $tc("{n} minute | {n} minutes", mm);
+        } else {
+          return $tc("{n} second | {n} seconds", ss);
+        }
+      } else {
+        return `${mm.toString().padStart(2, "0")}:${ss
+          .toString()
+          .padStart(2, "0")}`;
+      }
     },
 
     update_game_configuration(edited_value) {
@@ -506,6 +605,8 @@ export default {
       ) {
         return;
       }
+
+      this.categories_edited = true;
 
       // We update the configuration on the next tick; else, when we click on a slider
       // directly on another point (without dragging the cursor), the value sent to
@@ -529,7 +630,8 @@ export default {
 
     has_category(category) {
       return (
-        this.$store.state.morel.configuration.categories.indexOf(category) !== -1
+        this.$store.state.morel.configuration.categories.indexOf(category) !==
+        -1
       );
     },
 
@@ -548,6 +650,14 @@ export default {
 
     start_game() {
       this.$store.dispatch("ask_start_game");
+    }
+  },
+  mounted() {
+    this.load_suggestions(true);
+  },
+  watch: {
+    locale() {
+      this.load_suggestions();
     }
   }
 };
@@ -688,6 +798,9 @@ div.modal-card.suggestions-card
 
     .tag.is-static
       cursor: default
+
+  article.notification
+    margin-top: 1rem
 
 div.column.is-column-with-start-button
   display: flex

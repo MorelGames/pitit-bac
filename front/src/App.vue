@@ -1,8 +1,15 @@
 <template>
   <div id="app">
-    <b-loading :is-full-page="true" :active="has_fullscreen_message" :can-cancel="false">
+    <b-loading
+      :is-full-page="true"
+      :active="has_fullscreen_message"
+      :can-cancel="false"
+    >
       <template slot="default" v-if="loading_reason.title || error.title">
-        <p v-html="loading_reason.title || error.title" :class="{'is-pulsing': !!loading}"></p>
+        <p
+          v-html="loading_reason.title || error.title"
+          :class="{ 'is-pulsing': !!loading }"
+        ></p>
         <p
           class="loading-subtitle"
           v-if="loading_reason.title || error.title"
@@ -26,8 +33,17 @@
               <img src="./assets/logo.svg" alt="Pitit Bac" />
             </div>
             <morel-players
-              master-confirm-message="<strong>{name}</strong> pourra gérer la partie, sa configuration, ou relancer une nouvelle partie à la fin. Vous perdrez ces pouvoirs."
-              master-confirm-help="Le maître du jeu ne peut pas influencer les votes ou la partie, uniquement sa configuration ou son relancement. Il ou elle peut également expulser des joueurs et verrouiller la partie." />
+              :master-confirm-message="
+                $t(
+                  '<strong>{name}</strong> will be able to manage the game, its configuration, and relaunch a new game at the end. You\'ll lose those powers.'
+                )
+              "
+              :master-confirm-help="
+                $t(
+                  'The game master cannot influence the votes or the game, only its configuration or relaunch. It can also kick players and lock the game.'
+                )
+              "
+            />
             <morel-share-game />
           </div>
           <div class="column is-9">
@@ -38,7 +54,11 @@
           </div>
         </div>
       </div>
-      <div v-else class="container" :class="{ 'is-loading': has_fullscreen_message }">
+      <div
+        v-else
+        class="container"
+        :class="{ 'is-loading': has_fullscreen_message }"
+      >
         <div class="columns">
           <div class="column is-half is-offset-3">
             <header class="init-logo">
@@ -53,13 +73,20 @@
     <footer class="footer" :class="{ 'is-loading': has_fullscreen_message }">
       <div class="content has-text-centered">
         <p>
-          <em>Pitit Bac</em> est réalisé par
-          <a href="https://amaury.carrade.eu">Amaury Carrade</a>. Cette
-          application est
-          <a href="https://github.com/AmauryCarrade/pitit-bac"
-            >à source ouverte, et publiée sous licence libre</a
-          >.
+          <i18n path="Pitit Bac is brought to you by {name}.">
+            <a href="https://amaury.carrade.eu" slot="name"
+              >Amaury Carrade</a
+            > </i18n
+          >&nbsp;
+          <i18n path="This application is {open_source}.">
+            <a
+              href="https://github.com/MorelGames/pitit-bac"
+              slot="open_source"
+              >{{ $t("open source, and published under a free licence") }}</a
+            >
+          </i18n>
         </p>
+        <morel-locale-switcher />
       </div>
     </footer>
   </div>
@@ -76,19 +103,19 @@ import GameEnd from "./components/GameEnd.vue";
 export default {
   name: "App",
   computed: {
-    ...mapState('morel', {
+    ...mapState("morel", {
       phase: state => state.phase,
       loading: state => state.loading,
       loading_reason: state => state.loading_reason,
       error: state => state.error
     }),
     has_fullscreen_message() {
-      return !!this.loading || (!!this.error && !!this.error.title)
+      return !!this.loading || (!!this.error && !!this.error.title);
     }
   },
 
   watch: {
-    state() {
+    phase() {
       this.$nextTick(() => window.scrollTo(0, 0));
     }
   },

@@ -18,21 +18,11 @@ export class Game {
     this.infinite_duration = 600;
 
     this.configuration = {
-      categories: [
-        "Pays",
-        "Ville",
-        "Prénom masculin",
-        "Prénom féminin",
-        "Métier",
-        "Objet",
-        "Animal",
-        "Végétal",
-        "Couleur"
-      ],
+      categories: [],
       stopOnFirstCompletion: true,
       turns: 4,
       time: this.infinite_duration,
-      alphabet: "ABCDEFGHIJLMNOPQRSTUV",
+      alphabet: "",
       scores: {
         // The answer is valid, accepted by the players, and is not duplicated.
         valid: 10,
@@ -72,6 +62,8 @@ export class Game {
 
     this.pending_deletion_task = null;
     this.pending_deletion_threshold = 1000 * 60 * 20;
+
+    this.just_created = true;
   }
 
   log(message) {
@@ -211,7 +203,7 @@ export class Game {
     });
 
     // And the current game configuration
-    this.send_message(uuid, "config-updated", { configuration: this.configuration });
+    if (!this.just_created) this.send_message(uuid, "config-updated", { configuration: this.configuration });
     this.send_message(uuid, "game-locked", { locked: this.locked });
 
     // And the game state if we're not in CONFIG
@@ -222,6 +214,8 @@ export class Game {
     this.log("Player " + player.pseudonym + " (" + player.uuid + ") joined the game (total: " + this.online_players().length + "/" + Object.keys(this.players).length + ").");
 
     this.halt_deletion_process();
+
+    this.just_created = false;
   }
 
   left(uuid, forget) {
@@ -333,10 +327,19 @@ export class Game {
     if (this.state != "CONFIG") return;
     if (!this.is_valid_player(uuid)) return;
 
+    let configuration_accepted = true;
+
     // If the configuration is updated by a non-master player,
     // we ignore it and send a configuration update with the current config
     // to erase client-side its changes.
     if (this.master_player_uuid !== uuid) {
+      configuration_accepted = false;
+    }
+
+    if (!Array.isArray(configuration.categories)) configuration_accepted = false;
+    if (!configuration.scores || typeof configuration.scores !== "object") configuration_accepted = false;
+
+    if (!configuration_accepted) {
       this.send_message(uuid, "config-updated", {configuration: this.configuration});
       return;
     }
@@ -413,6 +416,9 @@ export class Game {
   start(connection, uuid) {
     if (!this.is_valid_player(uuid)) return;
     if (this.master_player_uuid !== uuid) return; // Nope
+
+    if (this.configuration.categories.length === 0) return;
+    if (this.configuration.alphabet.length === 0) return;
 
     this.log("Starting game");
     this.next_round();

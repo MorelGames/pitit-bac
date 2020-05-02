@@ -8,9 +8,13 @@
             <p class="winner-names">{{ firsts }}</p>
             <p class="rank">
               <span v-if="firsts_count === 1"
-                >Vainqueur ⋅ {{ firsts_points }}</span
+                >{{ $tc("Winner | Winners", firsts_count) }} ⋅
+                {{ firsts_points }}</span
               >
-              <span v-else>Vainqueurs ⋅ {{ firsts_points }}</span>
+              <span v-else
+                >{{ $tc("Winner | Winners", firsts_count) }} ⋅
+                {{ firsts_points }}</span
+              >
             </p>
           </div>
           <div
@@ -26,9 +30,13 @@
                   <p class="winner-names">{{ seconds }}</p>
                   <p class="rank">
                     <span v-if="seconds_count < 2"
-                      >Deuxième ⋅ {{ seconds_points }}</span
+                      >{{ $tc("Runner-up | Runners-up", seconds_count) }} ⋅
+                      {{ seconds_points }}</span
                     >
-                    <span v-else>Deuxièmes ⋅ {{ seconds_points }}</span>
+                    <span v-else
+                      >{{ $tc("Runner-up | Runners-up", seconds_count) }} ⋅
+                      {{ seconds_points }}</span
+                    >
                   </p>
                 </article>
               </div>
@@ -37,9 +45,13 @@
                   <p class="winner-names">{{ thirds }}</p>
                   <p class="rank">
                     <span v-if="thirds_count < 2"
-                      >Troisième ⋅ {{ thirds_points }}</span
+                      >{{ $tc("Third | Third", thirds_count) }} ⋅
+                      {{ thirds_points }}</span
                     >
-                    <span v-else>Troisièmes ⋅ {{ thirds_points }}</span>
+                    <span v-else
+                      >{{ $tc("Third | Third", thirds_count) }} ⋅
+                      {{ thirds_points }}</span
+                    >
                   </p>
                 </article>
               </div>
@@ -57,21 +69,24 @@
       <div class="columns restart-game-columns">
         <div class="column is-9">
           <p class="content">
-            <strong>Vous voulez recommencer ?</strong><br />
-            Cliquez sur le bouton ci-contre pour retourner avec tous les joueurs
-            à l'écran de configuration, et relancer la partie.
+            <strong>{{ $t("Another game?") }}</strong
+            ><br />
+            {{
+              $t(
+                "Click on this button to go back to the configuration screen with all players, and play again."
+              )
+            }}
           </p>
         </div>
         <div class="column is-3">
           <div class="field">
             <b-button
+              v-t="'New game'"
               type="is-primary is-medium"
               expanded
               :disabled="false"
               @click.once="restart_game"
-            >
-              Nouvelle partie
-            </b-button>
+            />
           </div>
         </div>
       </div>
@@ -82,17 +97,35 @@
         <div class="level-left">
           <div class="columns is-rank-and-pseudonym is-mobile">
             <div class="column is-3 is-rank">
-              {{ score.rank }}<sup>{{ score.rank === 1 ? "er" : "ème" }}</sup>
+              <i18n v-if="score.rank === 1" path="1{st}"
+                ><sup slot="st">{{ $t("st") }}</sup></i18n
+              >
+              <i18n v-else-if="score.rank === 2" path="2{nd}"
+                ><sup slot="nd">{{ $t("nd") }}</sup></i18n
+              >
+              <i18n v-else-if="score.rank === 3" path="3{rd}"
+                ><sup slot="rd">{{ $t("rd") }}</sup></i18n
+              >
+              <i18n v-else path="{n}{th}"
+                ><template #n>{{ score.rank }}</template
+                ><sup slot="th">{{ $t("th") }}</sup></i18n
+              >
             </div>
             <div class="column is-9 is-pseudonym">
-              {{ (players[score.uuid] || { pseudonym: "Pifra" }).pseudonym }}
+              {{ players[score.uuid].pseudonym }}
             </div>
           </div>
         </div>
         <div class="level-right">
-          <p class="is-score">
-            <span>{{ score.score }}</span> point{{ score.score > 1 ? "s" : "" }}
-          </p>
+          <p
+            class="is-score"
+            v-html="
+              $tc(
+                '<span>{n}</span> point | <span>{n}</span> points',
+                score.score
+              )
+            "
+          />
         </div>
       </div>
     </article>
@@ -145,17 +178,14 @@ export default {
         return array[0].trim();
       } else {
         let last = array.pop();
-        return (array.join(", ") + " et " + last).trim();
+        return (array.join(", ") + " " + this.$t("and") + " " + last).trim();
       }
     },
     nth_winners(n) {
       return this.array_to_string(
         this.scores
           .filter(score => score.rank === n)
-          .map(
-            score =>
-              (this.players[score.uuid] || { pseudonym: "Pifra" }).pseudonym
-          )
+          .map(score => this.players[score.uuid].pseudonym)
       );
     },
     nth_winners_count(n) {
@@ -165,7 +195,7 @@ export default {
       let nth_scores = this.scores.filter(score => score.rank === n);
       if (nth_scores && nth_scores.length > 0) {
         let points = nth_scores[0].score;
-        return points + " point" + (points > 1 ? "s" : "");
+        return this.$tc("{n} point | {n} points", points);
       } else return "";
     },
     restart_game() {

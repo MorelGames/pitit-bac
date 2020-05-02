@@ -3,14 +3,20 @@
     <b-notification :active="true" :closable="false" class="votes-header">
       <div class="columns votes-header-column">
         <div class="column is-9">
+          <i18n
+            path="Here are everyone's proposals for the letter {letter}."
+            tag="p"
+            class="content"
+          >
+            <strong slot="letter">{{ letter }}</strong>
+          </i18n>
           <p class="content">
-            Voici les propositions de tout le monde pour la lettre
-            <strong>{{ letter }}</strong
-            >.<br />
-            Sont-elles acceptables&nbsp;? À vous de juger&nbsp;!
-            <strong>Décochez</strong> toutes les cases des propositions que vous
-            jugez comme étant à rejeter. Quand vous avez terminé, validez avec
-            le bouton ci-contre.
+            {{ $t("Are they acceptable? You'll be the judge!") }}
+            {{
+              $t(
+                "Uncheck all the boxes against the proposals you refuse. Then, validate with the finish button."
+              )
+            }}
           </p>
         </div>
         <div class="column is-3">
@@ -21,8 +27,8 @@
               :disabled="ready"
               @click.once="vote_ready"
             >
-              <span v-if="ready">Patientez…</span>
-              <span v-else>J'ai terminé !</span>
+              <span v-if="ready" v-t="'Please wait…'" />
+              <span v-else v-t="'I finished!'" />
             </b-button>
           </div>
         </div>
@@ -36,8 +42,11 @@
       :closable="false"
       v-if="interrupted && interrupted_by"
     >
-      Le tour a été interrompu par <strong>{{ interrupted_by }}</strong
-      >, qui a été plus rapide que les autres !
+      <i18n
+        path="The round was interrupted by {name}, who was faster than the others!"
+      >
+        <strong slot="name">{{ interrupted_by }}</strong>
+      </i18n>
     </b-notification>
 
     <b-notification
@@ -46,9 +55,11 @@
       :closable="false"
       v-if="categories.length === 0"
     >
-      Il semblerait qu'aucun joueur n'ait répondu pendant cette manche… Il n'y a
-      donc rien à voter. Cliquez sur « J'ai terminé » pour passer au prochain
-      tour.
+      {{
+        $t(
+          "It looks like no one answered anything during this round… So there is nothing to vote. Please click “I finished!” to start the next round."
+        )
+      }}
     </b-notification>
 
     <div class="all-answers">
@@ -60,7 +71,8 @@
         <h3 class="title is-4">{{ category }}</h3>
 
         <div
-          class="level" :class="{'has-lots-of-votes': answer.votes.length > 10}"
+          class="level"
+          :class="{ 'has-lots-of-votes': answer.votes.length > 10 }"
           v-for="(answer, j) in answers_in_category(category)"
           :key="j"
         >
@@ -85,7 +97,7 @@
               <div class="media-content">
                 <p class="answer-text">
                   {{
-                    answer.answer.text ? answer.answer.text : "(pas de réponse)"
+                    answer.answer.text ? answer.answer.text : $t("(no answer)")
                   }}
                 </p>
                 <ul class="answer-meta">
@@ -93,7 +105,10 @@
                   <li v-if="answer.answer.valid">
                     <b-tooltip
                       :label="
-                        `Rechercher « ${answer.answer.text} » sur un moteur de recherche (dans un nouvel onglet)`
+                        $t(
+                          'Search “{term}” on a search engine (in a new tab)',
+                          { term: answer.answer.text }
+                        )
                       "
                       position="is-bottom"
                       type="is-light"
@@ -102,16 +117,15 @@
                       <a
                         :href="search_url(category, answer.answer.text)"
                         target="search_engine"
-                        >Rechercher</a
+                        >{{ $t("Search") }}</a
                       >
                     </b-tooltip>
                   </li>
-                  <li v-if="!answer.answer.valid">Proposition invalide</li>
+                  <li v-if="!answer.answer.valid" v-t="'Invalid answer'" />
                   <li
                     v-else-if="!answer_accepted(category, answer.author.uuid)"
-                  >
-                    Refusé par la majorité
-                  </li>
+                    v-t="'Rejected by a majority of players'"
+                  />
                 </ul>
               </div>
             </div>
@@ -120,8 +134,24 @@
             <div v-for="(vote, k) in answer.votes" :key="k">
               <div class="block">
                 <b-tooltip :label="vote.voter.pseudonym">
-                  <b-icon icon="check" v-if="vote.vote"></b-icon>
-                  <b-icon icon="times" v-else></b-icon>
+                  <b-icon
+                    icon="check"
+                    v-if="vote.vote"
+                    :aria-label="
+                      $t('{name} voted for this answer', {
+                        name: vote.voter.pseudonym
+                      })
+                    "
+                  />
+                  <b-icon
+                    icon="times"
+                    v-else
+                    :aria-label="
+                      $t('{name} voted against this answer', {
+                        name: vote.voter.pseudonym
+                      })
+                    "
+                  />
                 </b-tooltip>
               </div>
             </div>
@@ -142,8 +172,8 @@
           :disabled="ready"
           @click.once="vote_ready"
         >
-          <span v-if="ready">Patientez…</span>
-          <span v-else>J'ai terminé !</span>
+          <span v-if="ready" v-t="'Please wait…'" />
+          <span v-else v-t="'I finished!'" />
         </b-button>
       </div>
     </b-notification>
@@ -192,7 +222,11 @@ export default {
           });
         });
 
-        votes.sort((a, b) => a.voter.pseudonym.toLowerCase().localeCompare(b.voter.pseudonym.toLowerCase()));
+        votes.sort((a, b) =>
+          a.voter.pseudonym
+            .toLowerCase()
+            .localeCompare(b.voter.pseudonym.toLowerCase())
+        );
 
         answers.push({
           uuid: uuid,
@@ -205,7 +239,11 @@ export default {
         });
       });
 
-      answers.sort((a, b) => a.author.pseudonym.toLowerCase().localeCompare(b.author.pseudonym.toLowerCase()));
+      answers.sort((a, b) =>
+        a.author.pseudonym
+          .toLowerCase()
+          .localeCompare(b.author.pseudonym.toLowerCase())
+      );
 
       return answers;
     },
@@ -275,6 +313,7 @@ export default {
     align-items: center
 
     p.content
+      margin-bottom: 0
       text-align: justify
 
 .notification.interrupted-by

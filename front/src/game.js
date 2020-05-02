@@ -1,6 +1,5 @@
 import { MorelClient } from "morel-games-core";
 
-
 export default class GameClient extends MorelClient {
   message_in_catch_up_game_state(message) {
     this.store.dispatch("catch_up", message);

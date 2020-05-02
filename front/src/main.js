@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { MorelStore, MorelVue } from "morel-games-core";
+import { MorelStore, MorelVue, MorelI18n } from "morel-games-core";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -59,9 +59,24 @@ const client = new GameClient(
   "pb-protocol"
 );
 
+const i18n = new MorelI18n(
+  locale =>
+    import(
+      /* webpackChunkName: "locales-[request]" */ "./../locales/" +
+        locale +
+        ".json"
+    ),
+  {
+    en: "English",
+    fr: "Français"
+  }
+);
+
+const t = i18n.i18n.t.bind(i18n.i18n);
+
 const store = new Vuex.Store({
   modules: {
-    morel: MorelStore(client)
+    morel: MorelStore(client, i18n)
   },
   state: {
     game: {
@@ -164,9 +179,10 @@ const store = new Vuex.Store({
     next_round_soon(context, countdown) {
       let set_countdown = n => {
         context.commit("morel/set_loading", {
-          title: n > 0 ? n.toString() : "Début imminent…",
-          description:
-            "Préparez-vous, le prochain tour démarre dans quelques secondes…"
+          title: n > 0 ? n.toString() : t("Starting soon…"),
+          description: t(
+            "Brace yourself, the next round starts in a few seconds…"
+          )
         });
       };
 
@@ -204,7 +220,7 @@ const store = new Vuex.Store({
       context.commit("round_ended");
       context.commit(
         "morel/set_loading",
-        "Collecte des réponses de tous les joueurs…"
+        t("Collecting answers from all players…")
       );
 
       client.send_answers();
@@ -267,7 +283,10 @@ const store = new Vuex.Store({
             letter: catch_up.round.letter
           });
 
-          context.dispatch("morel/set_all_readyness", catch_up.round.players_ready);
+          context.dispatch(
+            "morel/set_all_readyness",
+            catch_up.round.players_ready
+          );
 
           if (catch_up.round.time_left) {
             context.commit("update_time_left", catch_up.round.time_left);
@@ -279,7 +298,10 @@ const store = new Vuex.Store({
             answers: catch_up.vote.answers,
             interrupted_by: catch_up.vote.interrupted
           });
-          context.dispatch("morel/set_all_readyness", catch_up.vote.players_ready);
+          context.dispatch(
+            "morel/set_all_readyness",
+            catch_up.vote.players_ready
+          );
           break;
 
         case "END":
@@ -293,23 +315,16 @@ const store = new Vuex.Store({
 });
 
 client.set_store(store);
+i18n.set_store(store);
+
+i18n.load_locale_from_browser();
 
 store.commit("morel/update_configuration", {
-  categories: [
-    "Pays",
-    "Ville",
-    "Prénom masculin",
-    "Prénom féminin",
-    "Métier",
-    "Objet",
-    "Animal",
-    "Végétal",
-    "Couleur"
-  ],
+  categories: [],
   stopOnFirstCompletion: true,
   turns: 4,
   time: 400,
-  alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  alphabet: "",
   scores: {
     valid: 10,
     duplicate: 5,
@@ -320,12 +335,13 @@ store.commit("morel/update_configuration", {
 });
 
 // We read the slug from the URL, if it exists.
-const url_slug = window.location.pathname.slice(1).split('/')[0];
+const url_slug = window.location.pathname.slice(1).split("/")[0];
 if (url_slug) {
-  store.dispatch("morel/set_slug", url_slug)
+  store.dispatch("morel/set_slug", url_slug);
 }
 
 new Vue({
   render: h => h(App),
-  store: store
+  store: store,
+  i18n: i18n.i18n
 }).$mount("#app");

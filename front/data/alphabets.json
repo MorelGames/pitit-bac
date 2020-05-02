@@ -1,34 +1,34 @@
 {
-  "Alphabets internationaux": {
-    "description": "Différents alphabets complets de différents systèmes d'écriture.",
+  "International Alphabets": {
+    "description": "Complete alphabets from different writing systems.",
     "alphabets": {
-      "Alphabet latin": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-      "Alphabet grec": "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
-      "Alphabet cyrillique": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ"
+      "Latin Alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "Greek Alphabet": "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
+      "Cyrillic Alphabet": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ"
     }
   },
-  "Alphabets simplifiés": {
-    "description": "Les alphabets de différentes langues, mais sans les lettres les plus rares.",
+  "Simplified Alphabets": {
+    "description": "Alphabets from different languages, but without the rarest letters.",
     "alphabets": {
-      "Allemand": "ABCDEFGHIKLMNOPRSTUVWZ",
-      "Anglais": "ABCDEFGHIKLMNOPRSTUVW",
+      "German": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "English": "ABCDEFGHIKLMNOPRSTUVW",
       "Breton": "ABCDEFGHIKLMNOPRSTVY",
-      "Danois": "ABCDEFGHIJKLMNOPRSTUV",
-      "Espagnol": "ABCDEFGHIJLMNOPRSTV",
+      "Danish": "ABCDEFGHIJKLMNOPRSTUV",
+      "Spanish": "ABCDEFGHIJLMNOPRSTV",
       "Esperanto": "ABCDEFGHIJKLMNOPRSTUV",
-      "Finois": "ABDEFHIJKLMNOPRSTUVY",
-      "Français": "ABCDEFGHIJLMNOPQRSTUV",
-      "Grec": "\u0386\u0391\u0392\u0393\u0394\u0395\u0398\u0399\u039a\u039b\u039c\u039d\u039f\u03a0\u03a1\u03a3\u03a4\u03a5\u03a6\u03a7",
-      "Islandais": "ABDEFGHJKLMNOPRSTUV\u00c1\u00d3\u00de",
-      "Italien": "ABCDEFGILMNOPRSTUV",
+      "Finnish": "ABDEFHIJKLMNOPRSTUVY",
+      "French": "ABCDEFGHIJLMNOPRSTUV",
+      "Greek": "\u0386\u0391\u0392\u0393\u0394\u0395\u0398\u0399\u039a\u039b\u039c\u039d\u039f\u03a0\u03a1\u03a3\u03a4\u03a5\u03a6\u03a7",
+      "Icelandic": "ABDEFGHJKLMNOPRSTUV\u00c1\u00d3\u00de",
+      "Italian": "ABCDEFGILMNOPRSTUV",
       "Latin": "ABCDEFGHILMNOPRSTUV",
-      "Néerlandais": "ABCDEFGHIKLMNOPRSTUVWZ",
-      "Norvégien": "ABDEFGHIJKLMNOPRSTUV",
+      "Dutch": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "Norwegian": "ABDEFGHIJKLMNOPRSTUV",
       "Occitan": "ABCDEFGIJLMNOPRSTUV",
-      "Polonais": "ABCDEFGHIJKLMNOPRSTUWZ",
-      "Portuguais": "ABCDEFGHILMNOPRSTV",
-      "Russe": "\u0410\u0411\u0412\u0413\u0414\u0417\u0418\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0427\u0428\u042d",
-      "Suédois": "ABCDEFGHIJKLMNOPRSTUV\u00d6"
+      "Polish": "ABCDEFGHIJKLMNOPRSTUWZ",
+      "Portuguese": "ABCDEFGHILMNOPRSTV",
+      "Russian": "\u0410\u0411\u0412\u0413\u0414\u0417\u0418\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0427\u0428\u042d",
+      "Swedish": "ABCDEFGHIJKLMNOPRSTUV\u00d6"
     }
   }
 }

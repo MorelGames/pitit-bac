@@ -2,12 +2,14 @@
   <section class="columns game-answers">
     <div class="column is-9 answers-column">
       <b-notification :active="true" :closable="false">
-        Remplissez toutes les catégories par des mots ou expressions commençant
-        par la lettre <strong>{{ letter }}</strong
-        >, puis validez avec le bouton à droite.
-        <span v-if="stop_on_first_completion"
-          >Le premier joueur qui valide interrompt tous les autres !</span
+        <i18n
+          path="Fill all categories with words or phrases beginning with the letter {letter}, then submit your answers using the finish button."
         >
+          <strong slot="letter">{{ letter }}</strong>
+        </i18n>
+        <span v-if="stop_on_first_completion">
+          {{ $t("The first player to finish interrupts all the others!") }}
+        </span>
       </b-notification>
       <div class="answers-form">
         <b-field
@@ -17,9 +19,10 @@
           :type="!is_category_valid(category) ? 'is-danger' : ''"
           :message="
             !is_category_valid(category)
-              ? 'Vous devez entrer un mot ou une expression commençant par la lettre ' +
-                letter +
-                '.'
+              ? $t(
+                  'You must enter a word or phrase beginning with the letter {letter}.',
+                  { letter }
+                )
               : ''
           "
         >
@@ -44,28 +47,21 @@
         <div class="field">
           <b-tooltip
             :multilined="!we_finished"
-            :label="we_finished
-                ? 'Attendez les autres…'
-                : (!all_fields_completed
-                    ? 'Remplissez correctement toutes les catégories avant de valider vos résultats'
-                    : 'Cliquez ici pour envoyer vos résultats' +
-                      (stop_on_first_completion
-                        ? ' et interrompre les autres joueurs.'
-                        : ' et indiquer aux autres joueurs que vous avez fini. Vous pourrez toujours les modifier avant la fin du temps imparti, ou tant que tout le monde n\'a pas fini.'))
-            "
+            :label="finish_button_label"
             type="is-dark"
             position="is-bottom"
           >
             <b-button
               type="is-primary is-medium"
               expanded
-              :disabled="we_finished || end_signal_received || !all_fields_completed"
+              :disabled="
+                we_finished || end_signal_received || !all_fields_completed
+              "
               @click.once="round_finished"
-              >
-                <template v-if="!we_finished">J'ai terminé !</template>
-                <template v-else>Patientez…</template>
-              </b-button
             >
+              <template v-if="!we_finished">{{ $t("I finished!") }}</template>
+              <template v-else>{{ $t("Please wait…") }}</template>
+            </b-button>
           </b-tooltip>
         </div>
       </div>
@@ -110,73 +106,71 @@ export default {
     },
 
     round_label() {
-      let cardinal = "";
+      const $t = this.$t.bind(this);
+
       switch (this.current_round.round) {
         case 1:
-          cardinal = "Premier";
-          break;
+          return $t("First round");
         case 2:
-          cardinal = "Second";
-          break;
+          return $t("Second round");
         case 3:
-          cardinal = "Troisième";
-          break;
+          return $t("Third round");
         case 4:
-          cardinal = "Quatrième";
-          break;
+          return $t("Fourth round");
         case 5:
-          cardinal = "Cinquième";
-          break;
+          return $t("Fifth round");
         case 6:
-          cardinal = "Sixième";
-          break;
+          return $t("Sixth round");
         case 7:
-          cardinal = "Septième";
-          break;
+          return $t("Seventh round");
         case 8:
-          cardinal = "Huitième";
-          break;
+          return $t("Eighth round");
         case 9:
-          cardinal = "Neuvième";
-          break;
+          return $t("Ninth round");
         case 10:
-          cardinal = "Dixième";
-          break;
+          return $t("Tenth round");
         case 11:
-          cardinal = "Onzième";
-          break;
+          return $t("Eleventh round");
         case 12:
-          cardinal = "Douzième";
-          break;
+          return $t("Twelfth round");
         case 13:
-          cardinal = "Treizième";
-          break;
+          return $t("Thirteenth round");
         case 14:
-          cardinal = "Quatorzième";
-          break;
+          return $t("Fourteenth round");
         case 15:
-          cardinal = "Quinzième";
-          break;
+          return $t("Fifteenth round");
         case 16:
-          cardinal = "Seizième";
-          break;
+          return $t("Sixteenth round");
         case 17:
-          cardinal = "Dix-septième";
-          break;
+          return $t("Seventeenth round");
         case 18:
-          cardinal = "Dix-huitième";
-          break;
+          return $t("Eighteenth round");
         case 19:
-          cardinal = "Dix-neuvième";
-          break;
+          return $t("Nineteenth round");
         case 20:
-          cardinal = "Vigtième";
-          break;
+          return $t("Twentieth round");
+        case 21:
+          return $t("Twenty-first round");
         default:
-          cardinal = `${this.current_round.round}ème`;
+          return $t("{n}th round", { n: this.current_round.round });
       }
+    },
+    finish_button_label() {
+      const $t = this.$t.bind(this);
 
-      return cardinal + " tour";
+      if (this.we_finished) {
+        return $t("Wait for the others…");
+      } else if (!this.all_fields_completed) {
+        return $t("Fill in all categories correctly before submitting");
+      } else if (this.stop_on_first_completion) {
+        return $t(
+          "Click here to submit your answers and interrupt all other players!"
+        );
+      } else {
+        return $t(
+          "Click here to submit your answers, and let other players know you're done. You'll still be able to change your answers before the time's up, or as long as not everyone finished."
+        );
+      }
     },
     valid_answers() {
       return Object.values(this.answers).filter(answer =>
