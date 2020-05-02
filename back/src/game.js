@@ -440,6 +440,7 @@ export class Game {
       this.current_round++;
       this.current_letter = this.random_letter();
 
+      this.current_round_interrupted_by = null;
       this.current_round_answers_final_received = [];
       this.current_round_votes_ready = [];
 
