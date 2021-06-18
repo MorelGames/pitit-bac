@@ -172,6 +172,10 @@ html.overflow, html.overflow body
 
   .notification
     padding-right: 1.5rem !important
+    box-shadow: 0 1px 3px hsla(0, 0%, 0%, .12), 0 1px 2px hsla(0, 0%, 0%, .24)
+
+    &.is-flat
+      box-shadow: none
 
     .media-content
       overflow: hidden

@@ -37,7 +37,7 @@
 
     <b-notification
       type="is-primary"
-      class="interrupted-by"
+      class="interrupted-by is-flat"
       :active="true"
       :closable="false"
       v-if="interrupted && interrupted_by"
@@ -306,6 +306,9 @@ export default {
   top: 10px
 
   z-index: 40
+
+  background-color: rgba(whitesmoke, .8)
+  backdrop-filter: blur(10px)
 
   +mobile
     border-radius: 0
