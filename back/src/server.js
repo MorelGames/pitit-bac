@@ -265,14 +265,21 @@ export default class GameServer {
                     this.create_game(connection, user_uuid, message.pseudonym);
                 }
                 break;
+
             case "update-config":
                 if (!game || !message.configuration) return;
-                game.update_configuration(connection, user_uuid, message.configuration);
+                game.update_configuration(user_uuid, message.configuration);
+                break;
+
+            case "change-categories-by-everyone":
+                if (!game || !("enabled" in message)) return;
+                game.set_categories_by_everyone(user_uuid, message.enabled);
                 break;
 
             case "lock-game":
                 if (!game) return;
                 game.set_lock(user_uuid, !!message.locked);
+                break;
 
             case "switch-master":
                 if (!game || !message.master || !message.master.uuid) return;
@@ -287,10 +294,12 @@ export default class GameServer {
             case "start-game":
                 if (!game) return;
                 game.start(connection, user_uuid);
+                break;
 
             case "send-answers":
                 if (!game || !message.answers) return;
                 game.receive_answers(user_uuid, message.answers);
+                break;
 
             case "send-vote":
                 if (!game || !message.vote || !message.vote.uuid || !message.vote.category) return;

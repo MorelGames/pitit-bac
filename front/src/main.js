@@ -98,6 +98,7 @@ const store = new Vuex.Store({
       // all players end (else).
       infinite_duration: 600
     },
+    categories_by_everyone: false,
     search_engine: "https://qwant.com/?q={s}&t=web"
   },
   getters: {
@@ -105,6 +106,10 @@ const store = new Vuex.Store({
       state.morel.configuration.time == state.game.infinite_duration
   },
   mutations: {
+    set_categories_by_everyone(state, categories_by_everyone) {
+      state.categories_by_everyone = categories_by_everyone;
+    },
+
     set_countdown_task(state, task) {
       state.game.current_round.countdown_task = task;
     },
@@ -172,6 +177,14 @@ const store = new Vuex.Store({
     }
   },
   actions: {
+    set_categories_by_everyone(context, { enabled, from_server }) {
+      context.commit("set_categories_by_everyone", enabled);
+
+      if (!from_server) {
+        client.set_categories_by_everyone(enabled);
+      }
+    },
+
     ask_start_game() {
       client.ask_start_game();
     },

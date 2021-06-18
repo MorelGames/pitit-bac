@@ -3,6 +3,9 @@ install:
 	cd back && npm install
 	cd front && npm install
 
+start:
+	make -j2 start-back watch-front
+
 start-back:
 	cd back && npm run back
 

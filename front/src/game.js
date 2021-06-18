@@ -1,6 +1,13 @@
 import { MorelClient } from "morel-games-core";
 
 export default class GameClient extends MorelClient {
+  message_in_categories_by_everyone({ enabled }) {
+    this.store.dispatch("set_categories_by_everyone", {
+      enabled,
+      from_server: true
+    });
+  }
+
   message_in_catch_up_game_state(message) {
     this.store.dispatch("catch_up", message);
   }
@@ -34,6 +41,12 @@ export default class GameClient extends MorelClient {
 
   message_in_game_restarted() {
     this.store.dispatch("restart_game");
+  }
+
+  set_categories_by_everyone(categories_by_everyone) {
+    return this.send_message("change-categories-by-everyone", {
+      enabled: categories_by_everyone
+    });
   }
 
   ask_start_game() {

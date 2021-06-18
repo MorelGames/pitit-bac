@@ -11,9 +11,13 @@
             <b-field
               :label="$t('Categories')"
               :message="
-                master
-                  ? $t(
-                      'Write down the category you want, and press enter to add it.'
+                master || categories_by_everyone
+                  ? (categories_by_everyone && !master
+                      ? $t('<strong>Everyone can update categories.</strong>') +
+                        ' '
+                      : '') +
+                    $t(
+                      'Write down the category you want, and press enter to add it; or use the suggestions link to enter pre-selected categories.'
                     )
                   : ''
               "
@@ -42,11 +46,20 @@
                 @input="update_game_configuration"
                 @typing="update_suggestions"
                 :placeholder="$t('Add a category…')"
-                :disabled="!master"
+                :disabled="!master && !categories_by_everyone"
                 type="is-primary-dark"
               >
               </b-taginput>
             </b-field>
+
+            <div class="field no-extended-margin-top" v-if="master">
+              <b-switch
+                :value="categories_by_everyone"
+                @input="update_categories_by_everyone"
+              >
+                {{ $t("Allow everyone to update categories") }}
+              </b-switch>
+            </div>
             <div class="field start-button is-desktop">
               <b-tooltip
                 multilined
@@ -156,7 +169,7 @@
             <p class="modal-card-title">{{ $t("Categories suggestions") }}</p>
           </header>
           <section class="modal-card-body">
-            <div v-if="master">
+            <div v-if="master || categories_by_everyone">
               <p
                 v-t="
                   'Categories ideas are suggested below. You can always write your own categories directly—don\'t hesitate if you have original ideas or private references!'
@@ -181,7 +194,7 @@
                 class="tag is-medium"
                 :class="{
                   'is-primary': has_category(suggestion),
-                  'is-static': !master
+                  'is-static': !master && !categories_by_everyone
                 }"
                 v-for="(suggestion, i) in categories_group"
                 :key="i"
@@ -444,6 +457,7 @@ export default {
   computed: {
     ...mapState({
       master: state => state.morel.master,
+      categories_by_everyone: state => state.categories_by_everyone,
       infinite_duration: state => state.game.infinite_duration,
       config: state => state.morel.configuration
     }),
@@ -611,7 +625,7 @@ export default {
       // We update the configuration on the next tick; else, when we click on a slider
       // directly on another point (without dragging the cursor), the value sent to
       // the server is the value before the update, and the configuration update
-      // messages resets the value to the previous one immediatly.
+      // messages resets the value to the previous one immediately.
       this.$nextTick(() =>
         this.$store.dispatch("morel/update_game_configuration", this.config)
       );
@@ -636,7 +650,7 @@ export default {
     },
 
     toggle_category(category) {
-      if (!this.master) return;
+      if (!this.master && !this.categories_by_everyone) return;
 
       let index = this.config.categories.indexOf(category);
       if (index === -1) {
@@ -646,6 +660,12 @@ export default {
       }
 
       this.update_game_configuration();
+    },
+
+    update_categories_by_everyone() {
+      this.$store.dispatch("set_categories_by_everyone", {
+        enabled: !this.categories_by_everyone
+      });
     },
 
     start_game() {
@@ -658,6 +678,15 @@ export default {
   watch: {
     locale() {
       this.load_suggestions();
+    },
+
+    config(newConfig, oldConfig) {
+      if (
+        JSON.stringify(newConfig.categories) !==
+        JSON.stringify(oldConfig.categories)
+      ) {
+        this.categories_edited = true;
+      }
     }
   }
 };

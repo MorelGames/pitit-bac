@@ -212,7 +212,7 @@ html.overflow, html.overflow body
 
   .field
     .help
-      color: $grey-light
+      color: $grey-dark
 
   .pititbac-logo
     margin-top: .2rem

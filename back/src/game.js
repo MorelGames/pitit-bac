@@ -11,6 +11,7 @@ export class Game {
 
     this.players = {};
     this.master_player_uuid = null;
+    this.categories_by_everyone = false;
 
     // If the duration is set to this value, then the round will only
     // stop when the first ends (if stopOnFirstCompletion) or when
@@ -206,6 +207,10 @@ export class Game {
     if (!this.just_created) this.send_message(uuid, "config-updated", { configuration: this.configuration });
     this.send_message(uuid, "game-locked", { locked: this.locked });
 
+    if (this.categories_by_everyone) {
+      this.send_message(uuid, "categories-by-everyone", { enabled: true });
+    }
+
     // And the game state if we're not in CONFIG
     if (this.state !== "CONFIG") {
       this.catch_up(uuid);
@@ -322,9 +327,9 @@ export class Game {
     this.send_message(uuid, "catch-up-game-state", catch_up);
   }
 
-  update_configuration(connection, uuid, configuration) {
+  update_configuration(uuid, configuration) {
     // We don't accept configuration update during the game.
-    if (this.state != "CONFIG") return;
+    if (this.state !== "CONFIG") return;
     if (!this.is_valid_player(uuid)) return;
 
     let configuration_accepted = true;
@@ -332,8 +337,18 @@ export class Game {
     // If the configuration is updated by a non-master player,
     // we ignore it and send a configuration update with the current config
     // to erase client-side its changes.
+    // But if categories by everyone is enabled, we accept the change but only keep categories
+    // from the configuration sent, discarding everything else.
     if (this.master_player_uuid !== uuid) {
-      configuration_accepted = false;
+      if (!this.categories_by_everyone) {
+        configuration_accepted = false;
+      } else {
+        // We only keep the categories, using the existing configuration for everything else.
+        configuration = {
+          ...this.configuration,
+          ...{ categories: configuration.categories }
+        }
+      }
     }
 
     if (!Array.isArray(configuration.categories)) configuration_accepted = false;
@@ -368,6 +383,18 @@ export class Game {
     };
 
     this.broadcast("config-updated", {configuration: this.configuration});
+  }
+
+  set_categories_by_everyone(uuid, enabled) {
+    // If the player is not master, we reject this change and send it a reverse message to reset
+    // its client to the correct state.
+    if (this.master_player_uuid !== uuid) {
+      this.send_message(uuid, "categories-by-everyone", { enabled: !enabled });
+      return;
+    }
+
+    this.categories_by_everyone = enabled;
+    this.broadcast("categories-by-everyone", { enabled });
   }
 
   elect_random_master() {

@@ -48,9 +48,13 @@ The client updates the configuration of the game.
 }
 ```
 
-If the client is not master, or if the game's state is not `CONFIG`, the update will be ignored and a `config-updated` message will be replied with the previous configuration to reset it.
+If the client is not master and the _categories by everyone_ mode is disabled, or if the game's state is not `CONFIG`,
+the update will be ignored and a `config-updated` message will be replied with the previous configuration to reset it.
 
-Else, a `config-updated` message will be broadcasted to the players of the game (excluding the client that sent the message), and the new configuration saved server-side.
+Else, a `config-updated` message will be broadcasted to the players of the game (excluding the client that sent the message),
+and the new configuration saved server-side.
+
+If the _categories by everyone_ mode is enabled and the sender is not master, non-categories changes will be discarded.
 
 ## `lock-game`
 
@@ -83,6 +87,16 @@ Asks the server to kick a specific player. If the sender is not master, the mess
   "kick": {
     "uuid": "the kicked player's UUID"
   }
+}
+```
+
+## `change-categories-by-everyone`
+
+Changes whether everyone can edit the categories and not only the game master.
+
+```json
+{
+  "enabled": true
 }
 ```
 
@@ -278,6 +292,17 @@ Indicates that the game's locked (or not).
 }
 ```
 
+## `categories-by-everyone`
+
+Indicates whether everyone can edit the categories and not only the game master. This message is also sent to new
+players joining the game, if the mode is enabled.
+
+```json
+{
+  "enabled": true
+}
+```
+
 ## `catch-up-game-state`
 
 Sent when someone joins the game after its beginning. This message allows the client to sync up with the game.
@@ -314,7 +339,7 @@ Sent when someone joins the game after its beginning. This message allows the cl
 }
 ```
 
-The `CONFIG` state can be ignored as if someone log out during config, it is removed.
+The `CONFIG` state can be ignored as if someone logs out during config, it is removed.
 
 Of this JSON message, only the `state` key and another relevant one is sent. The state can be:
 
