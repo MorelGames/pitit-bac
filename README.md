@@ -42,22 +42,28 @@ And on another, start the front build development watchdog:
 $ make watch-front
 ```
 
-You can also use the Vue GUI:
+You can also start both at the same time, but you'll have to restart both if you work on the server:
+
+```bash
+$ make start
+```
+
+…or the Vue GUI:
 
 ```bash
 $ make ui
 ```
 
-If something fail somewhere, first of all, ensure you're running the correct version of NodeJS:
+If something fail somewhere, first, ensure you're running the correct version of NodeJS:
 
 ```bash
 $ nvm use
 ```
 
-You may have to install Node 10:
+You may have to install Node 16:
 
 ```bash
-$ nvm install 10
+$ nvm install 16
 ```
 
 To lint the front-end code, use:
