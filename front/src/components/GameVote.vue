@@ -151,6 +151,9 @@
                         name: vote.voter.pseudonym
                       })
                     "
+                    :class="{
+                      'is-real-vote': answer.answer.valid
+                    }"
                   />
                 </b-tooltip>
               </div>
@@ -383,6 +386,9 @@ export default {
         font-style: italic
 
     .level-right
+      .icon.is-real-vote
+        color: hsl(360, 67%, 44%)
+
       +mobile
         display: flex
         flex-direction: row
