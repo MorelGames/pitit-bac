@@ -101,26 +101,28 @@
                   }}
                 </p>
                 <ul class="answer-meta">
-                  <li>{{ answer.author.pseudonym }}</li>
-                  <li v-if="answer.answer.valid">
-                    <b-tooltip
-                      :label="
-                        $t(
-                          'Search “{term}” on a search engine (in a new tab)',
-                          { term: answer.answer.text }
-                        )
-                      "
-                      position="is-bottom"
-                      type="is-light"
-                      multilined
-                    >
-                      <a
-                        :href="search_url(category, answer.answer.text)"
-                        target="search_engine"
-                        >{{ $t("Search") }}</a
+                  <li class="is-pseudonym">{{ answer.author.pseudonym }}</li>
+                  <template v-if="answer.answer.valid">
+                    <li v-for="(search_engine, k) in Object.keys(search_engines)" :key="k">
+                      <b-tooltip
+                        :label="
+                          $t(
+                            'Search “{term}” on a search engine (in a new tab)',
+                            { term: answer.answer.text }
+                          )
+                        "
+                        position="is-bottom"
+                        type="is-light"
+                        multilined
                       >
-                    </b-tooltip>
-                  </li>
+                        <a
+                          :href="search_url(search_engine, category, answer.answer.text)"
+                          target="search_engine"
+                          >{{ search_engine }}</a
+                        >
+                      </b-tooltip>
+                    </li>
+                  </template>
                   <li v-if="!answer.answer.valid" v-t="'Invalid answer'" />
                   <li
                     v-else-if="!answer_accepted(category, answer.author.uuid)"
@@ -205,7 +207,7 @@ export default {
           state.morel.players[state.game.current_round.interrupted_by];
         return interrupter ? interrupter.pseudonym : null;
       },
-      search_engine: state => state.search_engine
+      search_engines: state => state.search_engines
     }),
     categories() {
       return Object.keys(this.votes);
@@ -277,8 +279,11 @@ export default {
       this.ready = true;
     },
 
-    search_url(category, text) {
-      return this.search_engine.replace("{s}", category + " " + text);
+    search_url(search_engine, category, text) {
+      return this.search_engines[search_engine].replace(
+        "{s}",
+        category + " " + text
+      );
     }
   },
 
@@ -379,6 +384,9 @@ export default {
               content: "•"
               position: relative
               left: -.4em
+
+          &.is-pseudonym
+            font-weight: 600
 
           a
             color: $text

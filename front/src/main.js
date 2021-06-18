@@ -99,7 +99,10 @@ const store = new Vuex.Store({
       infinite_duration: 600
     },
     categories_by_everyone: false,
-    search_engine: "https://qwant.com/?q={s}&t=web",
+    search_engines: {
+      Google: "http://www.google.com/search?q={s}",
+      Qwant: "https://qwant.com/?q={s}&t=web"
+    },
     sticky_players_list: false
   },
   getters: {

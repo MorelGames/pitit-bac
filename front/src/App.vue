@@ -133,6 +133,7 @@ export default {
 
 <style lang="sass">
 @import "~bulma/sass/utilities/_all"
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@200;400;600;700&display=swap")
 
 @import "assets/variables"
 
