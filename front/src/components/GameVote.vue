@@ -288,10 +288,12 @@ export default {
     // overflow: hidden on `<html>` and `<body>`; this disables the CSS rule
     // for this screen only, so the sticky banner actually sticks.
     document.getElementsByTagName("html")[0].classList.add("overflow");
+    this.$store.commit("set_sticky_players_list", true);
   },
 
   beforeDestroy() {
     document.getElementsByTagName("html")[0].classList.remove("overflow");
+    this.$store.commit("set_sticky_players_list", false);
   }
 };
 </script>

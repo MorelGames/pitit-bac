@@ -43,6 +43,7 @@
                   'The game master cannot influence the votes or the game, only its configuration or relaunch. It can also kick players and lock the game.'
                 )
               "
+              :class="{ 'is-sticky': sticky_players_list }"
             />
             <morel-share-game />
           </div>
@@ -109,6 +110,7 @@ export default {
       loading_reason: state => state.loading_reason,
       error: state => state.error
     }),
+    ...mapState(["sticky_players_list"]),
     has_fullscreen_message() {
       return !!this.loading || (!!this.error && !!this.error.title);
     }
@@ -251,6 +253,12 @@ html.overflow, html.overflow body
     +mobile
       display: flex
       flex-direction: column-reverse
+
+  .morel-players-list.is-sticky
+    position: sticky
+    top: 10px
+    z-index: 21
+    background-color: white
 
 @keyframes pulse
   0%

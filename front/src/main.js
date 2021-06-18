@@ -99,13 +99,18 @@ const store = new Vuex.Store({
       infinite_duration: 600
     },
     categories_by_everyone: false,
-    search_engine: "https://qwant.com/?q={s}&t=web"
+    search_engine: "https://qwant.com/?q={s}&t=web",
+    sticky_players_list: false
   },
   getters: {
     is_time_infinite: state =>
       state.morel.configuration.time == state.game.infinite_duration
   },
   mutations: {
+    set_sticky_players_list(state, fixed) {
+      state.sticky_players_list = fixed;
+    },
+
     set_categories_by_everyone(state, categories_by_everyone) {
       state.categories_by_everyone = categories_by_everyone;
     },
