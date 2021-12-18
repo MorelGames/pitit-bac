@@ -4,7 +4,7 @@ This software is a VueJS + websockets implementation of a multiplayer “Petit B
 
 It uses VueJS and Buefy for the (static) front-end, and a Node websocket server for the backend. The software is currently only available in French and for Latin alphabets, but this may evolve.
 
-No account required: go to [the homepage, **bac.carrade.eu**](https://bac.carrade.eu), enter your pseudonym, and play!
+No account required: go to [the homepage, **bac.morel.games**](https://bac.morel.games), enter your pseudonym, and play!
 
 
 ## Project folders
