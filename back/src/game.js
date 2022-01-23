@@ -710,14 +710,13 @@ export class Game {
 
     this.final_scores.sort((a, b) => b.score - a.score);
 
-    let rank = 1;
-    this.final_scores.forEach((score, i) => {
-      // We only increase the rank if the score is different.
-      if (i > 0 && this.final_scores[i].score < this.final_scores[i - 1].score) {
-        rank++;
+    this.final_scores.forEach((_, i) => {
+      // Set same rank for equal scores and keep following ranks intact
+      if (i > 0 && this.final_scores[i].score == this.final_scores[i-1].score) {
+        this.final_scores[i].rank = this.final_scores[i-1].rank;
+      } else {
+        this.final_scores[i].rank = i + 1;
       }
-
-      this.final_scores[i].rank = rank;
     });
 
     this.broadcast("game-ended", {scores: this.final_scores});
