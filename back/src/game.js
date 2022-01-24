@@ -712,7 +712,7 @@ export class Game {
 
     this.final_scores.forEach((_, i) => {
       // Set same rank for equal scores and keep following ranks intact
-      if (i > 0 && this.final_scores[i].score == this.final_scores[i-1].score) {
+      if (i > 0 && this.final_scores[i].score === this.final_scores[i-1].score) {
         this.final_scores[i].rank = this.final_scores[i-1].rank;
       } else {
         this.final_scores[i].rank = i + 1;
