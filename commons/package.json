@@ -12,7 +12,7 @@
     "slugify": "^1.4.0"
   },
   "devDependencies": {
-    "mocha": "^7.1.1",
+    "mocha": "^10.2.0",
     "should": "^13.2.3"
   }
 }
